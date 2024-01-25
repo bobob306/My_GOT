@@ -87,6 +87,6 @@ class HomeScreenViewModel @Inject constructor(
     }
 
     fun onNavigateToDummyScreen() {
-
+        Log.d("navigation to dummy screen", "started")
     }
 }

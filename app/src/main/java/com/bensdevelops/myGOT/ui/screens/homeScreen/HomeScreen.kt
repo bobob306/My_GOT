@@ -18,6 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.bensdevelops.myGOT.core.base.ViewData
 import com.bensdevelops.myGOT.core.viewData.homeScreen.HomeScreenViewData
+import com.bensdevelops.myGOT.navigation.Screen
 import com.bensdevelops.myGOT.ui.book.BookOverview
 import com.bensdevelops.myGOT.ui.character.CharacterOverview
 import com.bensdevelops.myGOT.ui.house.HouseOverview
@@ -38,7 +39,10 @@ fun HomeScreen(
         onHousesClick = { viewModel.onHousesClick() },
         onCharactersClick = { viewModel.onCharactersClick() },
         onClearClick = { viewModel.onClearClick() },
-        onNavigateToDummyScreenClick = { viewModel.onNavigateToDummyScreen() },
+        onNavigateToDummyScreenClick = {
+            viewModel.onNavigateToDummyScreen()
+            navController.navigate(Screen.DummyScreen.route)
+        },
     )
 }
 
@@ -77,10 +81,12 @@ private fun HomeScreenContent(
             }) {
                 Text(text = "Characters")
             }
-            Button(onClick = { onClearClick.invoke()}) {
+            Button(onClick = { onClearClick.invoke() }) {
                 Text(text = "Clear")
             }
-            Button(onClick = { onNavigateToDummyScreenClick.invoke() }) {
+            Button(onClick = {
+                onNavigateToDummyScreenClick.invoke()
+            }) {
                 Text(text = "Navigate to dummy screen")
             }
             when (viewData) {
@@ -111,5 +117,5 @@ private fun HomeScreenContent(
 @Preview
 @Composable
 private fun HomeScreenContentPreview() {
-    HomeScreenContent(null, null, {}, {}, {}, {}, {},)
+    HomeScreenContent(null, null, {}, {}, {}, {}, {})
 }
