@@ -27,8 +27,11 @@ import java.lang.reflect.Type
 @Module
 @InstallIn(SingletonComponent::class)
 object ApiModule {
+
+    // All requests will append this base url
     private const val BASE_URL = "https://anapioficeandfire.com/api/"
 
+    // Provide the client that makes the call and logs the call in the logcat
     @Provides
     fun provideOkHttpClient(): OkHttpClient {
         val logger = HttpLoggingInterceptor()
@@ -36,6 +39,8 @@ object ApiModule {
         return OkHttpClient.Builder().addInterceptor(logger).build()
     }
 
+    // adds the call converter so that the json becomes usable
+    // adds the call adapter so the response is wrapped in a Result class
     @Provides
     fun provideRetrofit(okHttpClient: OkHttpClient): RetrofitApi {
         return Retrofit.Builder()
@@ -47,11 +52,13 @@ object ApiModule {
             .create(RetrofitApi::class.java)
     }
 
+    // this is what we use in view models
     @Provides
     fun provideRepository(api: RetrofitApi) = Repository(api)
 
 }
 
+// different calls made throughout the app all return something wrapped in the result class
 interface RetrofitApi {
     @GET("books/1")
     suspend fun getBook(): Result<BookModel>
@@ -91,7 +98,7 @@ class ResultCallAdapterFactory : CallAdapter.Factory() {
     }
 }
 
-
+// this wraps the response inside a response and either as success or catches errors in Result.failure()
 class ResultCall<T>(val delegate: Call<T>) :
     Call<Result<T>> {
 

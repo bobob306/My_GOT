@@ -6,8 +6,8 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.bensdevelops.myGOT.ui.DummyScreen
-import com.bensdevelops.myGOT.ui.homeScreen.HomeScreen
-import com.bensdevelops.myGOT.ui.homeScreen.HomeScreenViewModel
+import com.bensdevelops.myGOT.ui.screens.homeScreen.HomeScreen
+import com.bensdevelops.myGOT.ui.screens.homeScreen.HomeScreenViewModel
 
 @Composable
 fun Navigation() {

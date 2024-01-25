@@ -11,6 +11,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+/*
+Just for when view data is in the loading state, partly to improve the experience, and to stop a
+user clicking multiple buttons, making multiple network requests and then potentially receiving the
+responses to those requests in the incorrect order.
+ */
+
 @Composable
 fun GenericLoading(modifier: Modifier = Modifier) {
     Box(

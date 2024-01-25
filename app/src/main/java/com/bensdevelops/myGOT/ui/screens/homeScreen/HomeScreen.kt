@@ -1,4 +1,4 @@
-package com.bensdevelops.myGOT.ui.homeScreen
+package com.bensdevelops.myGOT.ui.screens.homeScreen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -38,6 +38,7 @@ fun HomeScreen(
         onHousesClick = { viewModel.onHousesClick() },
         onCharactersClick = { viewModel.onCharactersClick() },
         onClearClick = { viewModel.onClearClick() },
+        onNavigateToDummyScreenClick = { viewModel.onNavigateToDummyScreen() },
     )
 }
 
@@ -50,6 +51,7 @@ private fun HomeScreenContent(
     onHousesClick: () -> Unit,
     onCharactersClick: () -> Unit,
     onClearClick: () -> Unit,
+    onNavigateToDummyScreenClick: () -> Unit,
 ) {
     Surface(
         Modifier
@@ -77,6 +79,9 @@ private fun HomeScreenContent(
             }
             Button(onClick = { onClearClick.invoke()}) {
                 Text(text = "Clear")
+            }
+            Button(onClick = { onNavigateToDummyScreenClick.invoke() }) {
+                Text(text = "Navigate to dummy screen")
             }
             when (viewData) {
                 is ViewData.Data -> {
@@ -106,5 +111,5 @@ private fun HomeScreenContent(
 @Preview
 @Composable
 private fun HomeScreenContentPreview() {
-    HomeScreenContent(null, null, {}, {}, {}, {})
+    HomeScreenContent(null, null, {}, {}, {}, {}, {},)
 }

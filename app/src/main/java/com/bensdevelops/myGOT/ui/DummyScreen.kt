@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.bensdevelops.myGOT.ui.homeScreen.HomeScreenViewModel
+import com.bensdevelops.myGOT.ui.screens.homeScreen.HomeScreenViewModel
 
 @Composable
 fun DummyScreen(

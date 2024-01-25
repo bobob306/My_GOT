@@ -18,6 +18,7 @@ data class BookViewData(
     val released: String?,
     val characters: List<String?>?,
     val povCharacters: List<String?>?,
+    val something: List<String?>?,
 )
 
 data class HouseViewData(

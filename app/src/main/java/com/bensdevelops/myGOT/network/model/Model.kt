@@ -1,74 +1,98 @@
 package com.bensdevelops.myGOT.network.model
+import com.google.gson.annotations.SerializedName
 
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
 
-@Serializable
-data class BookDto(
-    val bookList: List<Book>,
+data class CharacterModel(
+    @SerializedName("aliases")
+    val aliases: List<String>? = null,
+    @SerializedName("allegiances")
+    val allegiances: List<String>? = null,
+    @SerializedName("books")
+    val books: List<String>? = null,
+    @SerializedName("born")
+    val born: String? = null,
+    @SerializedName("culture")
+    val culture: String? = null,
+    @SerializedName("died")
+    val died: String? = null,
+    @SerializedName("father")
+    val father: String? = null,
+    @SerializedName("gender")
+    val gender: String? = null,
+    @SerializedName("mother")
+    val mother: String? = null,
+    @SerializedName("name")
+    val name: String? = null,
+    @SerializedName("playedBy")
+    val playedBy: List<String>? = null,
+    @SerializedName("povBooks")
+    val povBooks: List<String>? = null,
+    @SerializedName("spouse")
+    val spouse: String? = null,
+    @SerializedName("titles")
+    val titles: List<String>? = null,
+    @SerializedName("tvSeries")
+    val tvSeries: List<String>? = null,
+    @SerializedName("url")
+    val url: String? = null,
 )
 
-@Serializable
-data class CharacterDto(
-    val characterList: List<Character>,
+data class BookModel(
+    @SerializedName("authors")
+    val authors: List<String?>? = null,
+    @SerializedName("characters")
+    val characters: List<String?>? = null,
+    @SerializedName("country")
+    val country: String? = null,
+    @SerializedName("isbn")
+    val isbn: String? = null,
+    @SerializedName("mediaType")
+    val mediaType: String? = null,
+    @SerializedName("name")
+    val name: String? = null,
+    @SerializedName("numberOfPages")
+    val numberOfPages: Int? = null,
+    @SerializedName("povCharacters")
+    val povCharacters: List<String?>? = null,
+    @SerializedName("publisher")
+    val publisher: String? = null,
+    @SerializedName("released")
+    val released: String? = null,
+    @SerializedName("url")
+    val url: String? = null,
 )
 
-@Serializable
-data class HouseDto(
-    val houseList: List<House>,
-)
-
-@Serializable
-data class Book(
-    @SerialName("url") val url: String?,
-    @SerialName("name") val name: String?,
-    @SerialName("isbn") val isbn: String?,
-    @SerialName("authors") val authors: List<String?>?,
-    @SerialName("numberOfPages") val numberPages: Int?,
-    @SerialName("publisher") val publisher: String?,
-    @SerialName("country") val country: String?,
-    @SerialName("mediaType") val mediaType: String?,
-    @SerialName("released") val released: String?,
-    @SerialName("characters") val characters: List<String?>?,
-    @SerialName("povCharacters") val povCharacters: List<String?>?,
-)
-
-@Serializable
-data class Character(
-    @SerialName("url")  val url: String? = null,
-    @SerialName("name") val name: String? = null,
-    @SerialName("gender") val gender: String? = null,
-    @SerialName("culture")  val culture: String? = null,
-    @SerialName("born") val born: String? = null,
-    @SerialName("died") val died: String? = null,
-    @SerialName("titles") val title: List<String>? = null,
-    @SerialName("aliases") val aliases: List<String>? = null,
-    @SerialName("father") val father: String? = null,
-    @SerialName("mother") val mother: String? = null,
-    @SerialName("spouse") val spouse: String? = null,
-    @SerialName("allegiances") val allegiances: List<String>? = null,
-    @SerialName("books") val books: List<String>? = null,
-    @SerialName("povBooks") val povBooks: List<String>? = null,
-    @SerialName("tvSeries") val tvSeries: List<String>? = null,
-    @SerialName("playedBy") val playedBy: List<String>? = null,
-)
-
-@Serializable
-data class House(
-    @SerialName("url") val url: String? = null,
-    @SerialName("name") val name: String? = null,
-    @SerialName("region") val region: String? = null,
-    @SerialName("coatOfArms") val coatOfArms: String? = null,
-    @SerialName("words") val words: String? = null,
-    @SerialName("titles") val titles: List<String>? = null,
-    @SerialName("seats") val seats: List<String>? = null,
-    @SerialName("currentLord") val currentLord: String? = null,
-    @SerialName("heir") val heir: String? = null,
-    @SerialName("overlord") val overlord: String? = null,
-    @SerialName("founded") val founded: String? = null,
-    @SerialName("founder") val founder: String? = null,
-    @SerialName("diedOut") val diedOut: String? = null,
-    @SerialName("ancestralWeapons") val ancestralWeapons: List<String>? = null,
-    @SerialName("cadetBranches") val cadetBranches: List<String>? = null,
-    @SerialName("swornMembers") val swornMembers: List<String>? = null,
+data class HouseModel(
+    @SerializedName("ancestralWeapons")
+    val ancestralWeapons: List<String>? = null,
+    @SerializedName("cadetBranches")
+    val cadetBranches: List<String>? = null,
+    @SerializedName("coatOfArms")
+    val coatOfArms: String? = null,
+    @SerializedName("currentLord")
+    val currentLord: String? = null,
+    @SerializedName("diedOut")
+    val diedOut: String? = null,
+    @SerializedName("founded")
+    val founded: String? = null,
+    @SerializedName("founder")
+    val founder: String? = null,
+    @SerializedName("heir")
+    val heir: String? = null,
+    @SerializedName("name")
+    val name: String? = null,
+    @SerializedName("overlord")
+    val overlord: String? = null,
+    @SerializedName("region")
+    val region: String? = null,
+    @SerializedName("seats")
+    val seats: List<String>? = null,
+    @SerializedName("swornMembers")
+    val swornMembers: List<String>? = null,
+    @SerializedName("titles")
+    val titles: List<String>? = null,
+    @SerializedName("url")
+    val url: String? = null,
+    @SerializedName("words")
+    val words: String? = null,
 )

@@ -13,6 +13,12 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import com.bensdevelops.myGOT.navigation.Screen
 
+/*
+Predominantly this screen should be called if there is an error when displaying view data or if
+navigation fails.
+A simple more graceful way of the app having a problem than just crashing.
+ */
+
 @Composable
 fun ErrorScreen(
     navController: NavController,

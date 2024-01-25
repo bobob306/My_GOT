@@ -1,4 +1,4 @@
-package com.bensdevelops.myGOT.ui.homeScreen
+package com.bensdevelops.myGOT.ui.screens.homeScreen
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -10,7 +10,7 @@ import com.bensdevelops.myGOT.core.base.ViewData
 import com.bensdevelops.myGOT.core.viewData.homeScreen.HomeScreenViewData
 import com.bensdevelops.myGOT.mapper.ViewDataMapper
 import com.bensdevelops.myGOT.network.repository.Repository
-import com.bensdevelops.myGOT.ui.homeScreen.DataOptions.*
+import com.bensdevelops.myGOT.ui.screens.homeScreen.DataOptions.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -84,5 +84,9 @@ class HomeScreenViewModel @Inject constructor(
 
     fun onClearClick() {
         _showData.postValue(null)
+    }
+
+    fun onNavigateToDummyScreen() {
+
     }
 }
