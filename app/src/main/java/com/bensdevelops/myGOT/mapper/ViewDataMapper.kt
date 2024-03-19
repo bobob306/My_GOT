@@ -33,7 +33,7 @@ class ViewDataMapper @Inject constructor() {
     fun map(
         books: List<BookModel>?,
         characters: List<CharacterModel>?,
-        houses: List<HouseModel>?
+        houses: List<HouseModel>?,
     ): HomeScreenViewData {
 
         return HomeScreenViewData(
@@ -67,7 +67,7 @@ class ViewDataMapper @Inject constructor() {
                     released = released,
                     characters = characters?.map { it },
                     povCharacters = povCharacters?.map { it },
-                    something = listOf(url, name, isbn,),
+                    something = listOf(url, name, isbn),
                 )
             }
         }

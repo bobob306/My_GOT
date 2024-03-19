@@ -35,15 +35,11 @@ class HomeScreenViewModel @Inject constructor(
     val showData: LiveData<DataOptions?> get() = _showData
 
     fun onBooksClick() {
-        Log.d("books", "started")
         _viewData.value = ViewData.Loading()
         viewModelScope.launch {
             repository.getBooks().onSuccess {
                 val vm = viewwDataMapper.map(it, null, null)
                 _viewData.postValue(ViewData.Data(vm))
-                Log.d("chracter 2 name", vm.characterViewData?.get(1)?.name ?: "null")
-                Log.d("last book name", vm.bookViewData?.last()?.name ?: "null")
-                Log.d("last house name", vm.houseViewData?.last()?.name ?: "null")
                 _showData.postValue(BOOKS)
             }
                 .onFailure { _viewData.postValue(ViewData.Error(it)) }
@@ -51,15 +47,11 @@ class HomeScreenViewModel @Inject constructor(
     }
 
     fun onHousesClick() {
-        Log.d("houses", "started")
         _viewData.value = ViewData.Loading()
         viewModelScope.launch {
             repository.getHouses().onSuccess {
                 val vm = viewwDataMapper.map(null, null, it)
                 _viewData.postValue(ViewData.Data(vm))
-                Log.d("chracter 2 name", vm.characterViewData?.get(1)?.name ?: "null")
-                Log.d("last book name", vm.bookViewData?.last()?.name ?: "null")
-                Log.d("last house name", vm.houseViewData?.last()?.name ?: "null")
                 _showData.postValue(HOUSES)
             }
                 .onFailure { _viewData.postValue(ViewData.Error(it)) }
@@ -67,15 +59,11 @@ class HomeScreenViewModel @Inject constructor(
     }
 
     fun onCharactersClick() {
-        Log.d("characters", "started")
         _viewData.value = ViewData.Loading()
         viewModelScope.launch {
             repository.getCharacters().onSuccess {
                 val vm = viewwDataMapper.map(null, it, null)
                 _viewData.postValue(ViewData.Data(vm))
-                Log.d("chracter 2 name", vm.characterViewData?.get(1)?.name ?: "null")
-                Log.d("last book name", vm.bookViewData?.last()?.name ?: "null")
-                Log.d("last house name", vm.houseViewData?.last()?.name ?: "null")
                 _showData.postValue(CHARACTERS)
             }
                 .onFailure { _viewData.postValue(ViewData.Error(it)) }
