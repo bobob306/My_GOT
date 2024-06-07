@@ -1,9 +1,12 @@
 package com.bensdevelops.myGOT.core.viewData.homeScreen
 
+import com.bensdevelops.myGOT.ui.screens.homeScreen.DataOptions
+
 data class HomeScreenViewData(
     val bookViewData: List<BookViewData>? = null,
     val houseViewData: List<HouseViewData>? = null,
     val characterViewData: List<CharacterViewData>? = null,
+    val showData: DataOptions? = null,
 )
 
 data class BookViewData(

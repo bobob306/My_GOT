@@ -52,6 +52,15 @@ class ViewDataMapper @Inject constructor() {
         )
     }
 
+    fun clear(): HomeScreenViewData {
+        return HomeScreenViewData(
+            bookViewData = cachedBooks,
+            houseViewData = cachedHouses,
+            characterViewData = cachedCharacters,
+            showData = null
+        )
+    }
+
     private fun booksViewDataMapper(books: List<BookModel>): List<BookViewData> {
         return books.map { book ->
             book.run {

@@ -5,6 +5,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.bensdevelops.myGOT.core.base.ui.ErrorScreen
 import com.bensdevelops.myGOT.ui.DummyScreen
 import com.bensdevelops.myGOT.ui.screens.homeScreen.HomeScreen
 import com.bensdevelops.myGOT.ui.screens.homeScreen.HomeScreenViewModel
@@ -29,6 +30,11 @@ fun Navigation() {
         ) {
             val vm = hiltViewModel<HomeScreenViewModel>()
             DummyScreen(navController = navController, viewModel = vm)
+        }
+        composable(
+            route = Screen.ErrorScreen.route
+        ) {
+            ErrorScreen(navController = navController)
         }
     }
 }

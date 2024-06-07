@@ -23,7 +23,7 @@ class Repository @Inject constructor(
     suspend fun getBooks(): Result<List<BookModel>> {
         return cachedBooks?.let { Result.success(it) } ?: retrofitApi.getBooks().onSuccess {
             cachedBooks = it
-        }
+        }.onFailure { Throwable("an error has occurred") }
     }
 
     suspend fun getCharacters(): Result<List<CharacterModel>> {

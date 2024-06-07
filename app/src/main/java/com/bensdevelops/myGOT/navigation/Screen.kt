@@ -8,6 +8,8 @@ sealed class Screen(
 
     object DummyScreen : Screen("dummy_route")
 
+    object ErrorScreen : Screen("error_route")
+
     fun withArgs(vararg args: String): String {
         return buildString {
             append(route)

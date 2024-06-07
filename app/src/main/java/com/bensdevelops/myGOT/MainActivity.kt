@@ -1,7 +1,9 @@
 package com.bensdevelops.myGOT
 
 import android.os.Bundle
+import android.window.OnBackInvokedDispatcher
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.compose.setContent
 import com.bensdevelops.myGOT.navigation.Navigation
 import com.bensdevelops.myGOT.ui.theme.MyGOTTheme

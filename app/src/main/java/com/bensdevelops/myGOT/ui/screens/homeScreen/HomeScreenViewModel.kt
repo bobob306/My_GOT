@@ -25,22 +25,18 @@ enum class DataOptions{
 class HomeScreenViewModel @Inject constructor(
     private val repository: Repository,
     private val handle: SavedStateHandle,
-    private val viewwDataMapper: ViewDataMapper,
+    private val viewDataMapper: ViewDataMapper,
 ) : ViewModel() {
 
     private var _viewData = MutableLiveData<ViewData<HomeScreenViewData>>()
     val viewData: LiveData<ViewData<HomeScreenViewData>> get() = _viewData
 
-    private var _showData = MutableLiveData<DataOptions?>()
-    val showData: LiveData<DataOptions?> get() = _showData
-
     fun onBooksClick() {
         _viewData.value = ViewData.Loading()
         viewModelScope.launch {
             repository.getBooks().onSuccess {
-                val vm = viewwDataMapper.map(it, null, null)
-                _viewData.postValue(ViewData.Data(vm))
-                _showData.postValue(BOOKS)
+                val vm = viewDataMapper.map(it, null, null)
+                _viewData.postValue(ViewData.Data(content = vm.copy(showData = BOOKS)))
             }
                 .onFailure { _viewData.postValue(ViewData.Error(it)) }
         }
@@ -50,9 +46,8 @@ class HomeScreenViewModel @Inject constructor(
         _viewData.value = ViewData.Loading()
         viewModelScope.launch {
             repository.getHouses().onSuccess {
-                val vm = viewwDataMapper.map(null, null, it)
-                _viewData.postValue(ViewData.Data(vm))
-                _showData.postValue(HOUSES)
+                val vm = viewDataMapper.map(null, null, it)
+                _viewData.postValue(ViewData.Data(vm.copy(showData = HOUSES)))
             }
                 .onFailure { _viewData.postValue(ViewData.Error(it)) }
         }
@@ -62,16 +57,22 @@ class HomeScreenViewModel @Inject constructor(
         _viewData.value = ViewData.Loading()
         viewModelScope.launch {
             repository.getCharacters().onSuccess {
-                val vm = viewwDataMapper.map(null, it, null)
-                _viewData.postValue(ViewData.Data(vm))
-                _showData.postValue(CHARACTERS)
+                val vm = viewDataMapper.map(null, it, null)
+                _viewData.postValue(ViewData.Data(vm.copy(showData = CHARACTERS)))
             }
                 .onFailure { _viewData.postValue(ViewData.Error(it)) }
         }
     }
 
     fun onClearClick() {
-        _showData.postValue(null)
+        _viewData.value = ViewData.Loading()
+        val vm = viewDataMapper.clear()
+        _viewData.postValue(ViewData.Data(vm))
+    }
+
+    // on navigate away avoid the error state being stored in memory
+    fun reset() {
+        _viewData.postValue(ViewData.Data(HomeScreenViewData()))
     }
 
     fun onNavigateToDummyScreen() {
