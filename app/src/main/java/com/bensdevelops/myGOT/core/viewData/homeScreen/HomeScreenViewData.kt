@@ -1,6 +1,9 @@
 package com.bensdevelops.myGOT.core.viewData.homeScreen
 
 import com.bensdevelops.myGOT.ui.screens.homeScreen.DataOptions
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
 
 data class HomeScreenViewData(
     val bookViewData: List<BookViewData>? = null,
@@ -8,6 +11,8 @@ data class HomeScreenViewData(
     val characterViewData: List<CharacterViewData>? = null,
     val showData: DataOptions? = null,
 )
+
+sealed class CoreViewData()
 
 data class BookViewData(
     val url: String?,
@@ -22,7 +27,7 @@ data class BookViewData(
     val characters: List<String?>?,
     val povCharacters: List<String?>?,
     val something: List<String?>?,
-)
+) : CoreViewData()
 
 data class HouseViewData(
     val url: String? = null,
@@ -41,7 +46,7 @@ data class HouseViewData(
     val ancestralWeapons: List<String>? = null,
     val cadetBranches: List<String>? = null,
     val swornMembers: List<String>? = null,
-)
+) : CoreViewData()
 
 data class CharacterViewData(
     val url: String? = null,
@@ -60,4 +65,4 @@ data class CharacterViewData(
     val povBooks: List<String>? = null,
     val tvSeries: List<String>? = null,
     val playedBy: List<String>? = null,
-)
+) : CoreViewData()

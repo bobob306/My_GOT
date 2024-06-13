@@ -1,7 +1,6 @@
-package com.bensdevelops.myGOT.ui.character
+package com.bensdevelops.myGOT.ui.house
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,19 +11,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.bensdevelops.myGOT.core.viewData.homeScreen.CharacterViewData
+import com.bensdevelops.myGOT.core.base.ui.GOTColumn
+import com.bensdevelops.myGOT.core.viewData.homeScreen.HouseViewData
 
 @Composable
-fun CharacterOverview(characters: List<CharacterViewData>) {
+fun HouseOverview(houses: List<HouseViewData>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(vertical = 16.dp)
     ) {
-        item(characters) {
-            characters.forEach { character ->
-                CharacterOverviewBox(character = character)
+        item(houses) {
+            houses.forEach { house ->
+                HouseOverviewBox(house = house)
                 Spacer(modifier = Modifier.padding(vertical = 2.dp))
             }
         }
@@ -32,18 +32,17 @@ fun CharacterOverview(characters: List<CharacterViewData>) {
 }
 
 @Composable
-fun CharacterOverviewBox(character: CharacterViewData) {
-    character.run {
-        Column(
+fun HouseOverviewBox(house: HouseViewData) {
+    house.run {
+        GOTColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .border(color = MaterialTheme.colorScheme.primary, width = 1.dp)
-                .padding(16.dp)
         ) {
             Text(text = "Name = $name")
-            Text(text = "Played by = $playedBy")
-            Text(text = "Titles = $title")
-            Text(text = "Aliases = $aliases")
+            Text(text = "Region = $region")
+            Text(text = "Current Lord = $currentLord")
+            Text(text = "Words = $words")
         }
     }
 }

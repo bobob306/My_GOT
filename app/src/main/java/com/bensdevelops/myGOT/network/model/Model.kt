@@ -1,7 +1,7 @@
 package com.bensdevelops.myGOT.network.model
 import com.google.gson.annotations.SerializedName
 
-
+sealed class CoreModel()
 data class CharacterModel(
     @SerializedName("aliases")
     val aliases: List<String>? = null,
@@ -35,7 +35,7 @@ data class CharacterModel(
     val tvSeries: List<String>? = null,
     @SerializedName("url")
     val url: String? = null,
-)
+) : CoreModel()
 
 data class BookModel(
     @SerializedName("authors")
@@ -60,7 +60,7 @@ data class BookModel(
     val released: String? = null,
     @SerializedName("url")
     val url: String? = null,
-)
+) : CoreModel()
 
 data class HouseModel(
     @SerializedName("ancestralWeapons")
@@ -95,4 +95,4 @@ data class HouseModel(
     val url: String? = null,
     @SerializedName("words")
     val words: String? = null,
-)
+) : CoreModel()

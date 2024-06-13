@@ -4,6 +4,7 @@ import com.bensdevelops.myGOT.network.model.BookModel
 import com.bensdevelops.myGOT.network.model.CharacterModel
 import com.bensdevelops.myGOT.network.model.HouseModel
 import com.bensdevelops.myGOT.network.repository.Repository
+import com.bensdevelops.myGOT.network.repository.RepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,6 +21,9 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Query
+import retrofit2.http.QueryName
 import java.io.IOException
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
@@ -52,16 +56,23 @@ object ApiModule {
             .create(RetrofitApi::class.java)
     }
 
-    // this is what we use in view models
     @Provides
-    fun provideRepository(api: RetrofitApi) = Repository(api)
+    fun provideRepository(retrofitApi: RetrofitApi): Repository {
+        return RepositoryImpl(retrofitApi)
+    }
 
 }
 
 // different calls made throughout the app all return something wrapped in the result class
 interface RetrofitApi {
-    @GET("books/1")
-    suspend fun getBook(): Result<BookModel>
+    @GET("books/{index}")
+    suspend fun getBook(@Path("index") index: String): Result<BookModel>
+
+    @GET("characters/{index}")
+    suspend fun getCharacter(@Path("index") index: String): Result<CharacterModel>
+
+    @GET("houses/{index}")
+    suspend fun getHouse(@Path("index") index: String): Result<HouseModel>
 
     @GET("books/")
     suspend fun getBooks(): Result<List<BookModel>>

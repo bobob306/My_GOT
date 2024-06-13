@@ -10,12 +10,11 @@ import com.bensdevelops.myGOT.core.base.ViewData
 import com.bensdevelops.myGOT.core.viewData.homeScreen.HomeScreenViewData
 import com.bensdevelops.myGOT.mapper.ViewDataMapper
 import com.bensdevelops.myGOT.network.repository.Repository
-import com.bensdevelops.myGOT.ui.screens.homeScreen.DataOptions.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-enum class DataOptions{
+enum class DataOptions {
     BOOKS,
     HOUSES,
     CHARACTERS,
@@ -35,8 +34,8 @@ class HomeScreenViewModel @Inject constructor(
         _viewData.value = ViewData.Loading()
         viewModelScope.launch {
             repository.getBooks().onSuccess {
-                val vm = viewDataMapper.map(it, null, null)
-                _viewData.postValue(ViewData.Data(content = vm.copy(showData = BOOKS)))
+                val vm = viewDataMapper.map(it)
+                _viewData.postValue(ViewData.Data(content = vm))
             }
                 .onFailure { _viewData.postValue(ViewData.Error(it)) }
         }
@@ -46,8 +45,8 @@ class HomeScreenViewModel @Inject constructor(
         _viewData.value = ViewData.Loading()
         viewModelScope.launch {
             repository.getHouses().onSuccess {
-                val vm = viewDataMapper.map(null, null, it)
-                _viewData.postValue(ViewData.Data(vm.copy(showData = HOUSES)))
+                val vm = viewDataMapper.map(it)
+                _viewData.postValue(ViewData.Data(vm))
             }
                 .onFailure { _viewData.postValue(ViewData.Error(it)) }
         }
@@ -57,8 +56,8 @@ class HomeScreenViewModel @Inject constructor(
         _viewData.value = ViewData.Loading()
         viewModelScope.launch {
             repository.getCharacters().onSuccess {
-                val vm = viewDataMapper.map(null, it, null)
-                _viewData.postValue(ViewData.Data(vm.copy(showData = CHARACTERS)))
+                val vm = viewDataMapper.map(it)
+                _viewData.postValue(ViewData.Data(vm))
             }
                 .onFailure { _viewData.postValue(ViewData.Error(it)) }
         }

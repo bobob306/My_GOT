@@ -1,10 +1,10 @@
 package com.bensdevelops.myGOT.ui.screens.homeScreen
 
-import android.view.View
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -14,18 +14,18 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.navOptions
 import com.bensdevelops.myGOT.core.base.ViewData
-import com.bensdevelops.myGOT.core.base.ui.ErrorScreen
+import com.bensdevelops.myGOT.core.base.ui.GOTColumn
 import com.bensdevelops.myGOT.core.base.ui.GenericLoading
 import com.bensdevelops.myGOT.core.viewData.homeScreen.HomeScreenViewData
 import com.bensdevelops.myGOT.navigation.Screen
 import com.bensdevelops.myGOT.ui.book.BookOverview
 import com.bensdevelops.myGOT.ui.character.CharacterOverview
 import com.bensdevelops.myGOT.ui.house.HouseOverview
+import com.bensdevelops.myGOT.ui.theme.SizeTokens
 
 @Composable
 fun HomeScreen(
@@ -53,24 +53,22 @@ fun HomeScreen(
         onClearClick = { viewModel.onClearClick() },
         onNavigateToDummyScreenClick = {
             viewModel.onNavigateToDummyScreen()
-            navController.navigate(Screen.DummyScreen.route)
+            navController.navigate(Screen.VibrationScreen.route)
         },
-        onNavigateToErrorScreenClick = {
+        onNavigateToDetails = { dataType: String, index: Int ->
             navController.navigate(
-                Screen.ErrorScreen.route,
+                Screen.DetailsScreen.withArgs(dataType, index),
                 navOptions = navOptions {
                     launchSingleTop = true
                     restoreState = false
-                    popUpTo(Screen.HomeScreen.route) {
-                        inclusive = true
-                    }
-                }
+                },
             )
         },
     )
 }
 
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun HomeScreenContent(
     viewData: ViewData<HomeScreenViewData>?,
@@ -79,36 +77,36 @@ private fun HomeScreenContent(
     onCharactersClick: () -> Unit,
     onClearClick: () -> Unit,
     onNavigateToDummyScreenClick: () -> Unit,
-    onNavigateToErrorScreenClick: () -> Unit,
+    onNavigateToDetails: (String, Int) -> Unit,
 ) {
     Surface(
         Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
     ) {
-        Column(Modifier.padding(16.dp)) {
+        GOTColumn(modifier = Modifier) {
             Text(
                 text = "View Books, Houses or Characters",
             )
-            Button(onClick = {
-                onBooksClick.invoke()
-            }) {
-                Text(text = "Books")
-            }
-            Button(onClick = {
-                onHousesClick.invoke()
-            }) {
-                Text(text = "Houses")
-            }
-            Button(onClick = {
-                onCharactersClick.invoke()
-            }) {
-                Text(text = "Characters")
-            }
-            if (viewData is ViewData.Data) {
-                viewData.content.showData?.let {
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(SizeTokens.medium)) {
+                Button(onClick = {
+                    onBooksClick.invoke()
+                }) {
+                    Text(text = "Books")
+                }
+                Button(onClick = {
+                    onHousesClick.invoke()
+                }) {
+                    Text(text = "Houses")
+                }
+                Button(onClick = {
+                    onCharactersClick.invoke()
+                }) {
+                    Text(text = "Characters")
+                }
+                if (viewData is ViewData.Data && viewData.content.showData != null) {
                     Button(onClick = { onClearClick.invoke() }) {
-                        Text(text = "Clear")
+                        Text("Clear")
                     }
                 }
             }
@@ -117,16 +115,14 @@ private fun HomeScreenContent(
             }) {
                 Text(text = "Navigate to dummy screen")
             }
-            Button(onClick = {
-                onNavigateToErrorScreenClick.invoke()
-            }) {
-                Text(text = "Navigate to error screen")
-            }
             when (viewData) {
                 is ViewData.Data -> {
                     when (viewData.content.showData) {
                         DataOptions.BOOKS -> viewData.content.bookViewData?.let { books ->
-                            BookOverview(books = books)
+                            BookOverview(
+                                books = books,
+                                onClick = onNavigateToDetails,
+                            )
                         }
 
                         DataOptions.HOUSES -> viewData.content.houseViewData?.let { houses ->
@@ -152,5 +148,5 @@ private fun HomeScreenContent(
 @Preview
 @Composable
 private fun HomeScreenContentPreview() {
-    HomeScreenContent(null, {}, {}, {}, {}, {}, {})
+    HomeScreenContent(null, {}, {}, {}, {}, {}, { _, _ -> })
 }

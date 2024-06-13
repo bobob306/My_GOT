@@ -6,11 +6,13 @@ sealed class Screen(
 ) {
     object HomeScreen : Screen("home_screen")
 
-    object DummyScreen : Screen("dummy_route")
+    object VibrationScreen : Screen("vibration_screen")
 
     object ErrorScreen : Screen("error_route")
 
-    fun withArgs(vararg args: String): String {
+    object DetailsScreen: Screen(route = "detailsScreen", arguments = null)
+
+    fun withArgs(vararg args: Any): String {
         return buildString {
             append(route)
             args.forEach { arg ->

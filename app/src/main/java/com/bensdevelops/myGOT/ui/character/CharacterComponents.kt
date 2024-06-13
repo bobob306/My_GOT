@@ -1,7 +1,6 @@
-package com.bensdevelops.myGOT.ui.house
+package com.bensdevelops.myGOT.ui.character
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -12,19 +11,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.bensdevelops.myGOT.core.viewData.homeScreen.HouseViewData
+import com.bensdevelops.myGOT.core.base.ui.GOTColumn
+import com.bensdevelops.myGOT.core.viewData.homeScreen.CharacterViewData
 
 @Composable
-fun HouseOverview(houses: List<HouseViewData>) {
+fun CharacterOverview(characters: List<CharacterViewData>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(vertical = 16.dp)
     ) {
-        item(houses) {
-            houses.forEach { house ->
-                HouseOverviewBox(house = house)
+        item(characters) {
+            characters.forEach { character ->
+                CharacterOverviewBox(character = character)
                 Spacer(modifier = Modifier.padding(vertical = 2.dp))
             }
         }
@@ -32,18 +32,17 @@ fun HouseOverview(houses: List<HouseViewData>) {
 }
 
 @Composable
-fun HouseOverviewBox(house: HouseViewData) {
-    house.run {
-        Column(
+fun CharacterOverviewBox(character: CharacterViewData) {
+    character.run {
+        GOTColumn(
             modifier = Modifier
                 .fillMaxWidth()
                 .border(color = MaterialTheme.colorScheme.primary, width = 1.dp)
-                .padding(16.dp)
         ) {
             Text(text = "Name = $name")
-            Text(text = "Region = $region")
-            Text(text = "Current Lord = $currentLord")
-            Text(text = "Words = $words")
+            Text(text = "Played by = $playedBy")
+            Text(text = "Titles = $title")
+            Text(text = "Aliases = $aliases")
         }
     }
 }
