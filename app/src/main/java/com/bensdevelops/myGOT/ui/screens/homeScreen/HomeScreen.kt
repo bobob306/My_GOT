@@ -53,7 +53,7 @@ fun HomeScreen(
         onClearClick = { viewModel.onClearClick() },
         onNavigateToDummyScreenClick = {
             viewModel.onNavigateToDummyScreen()
-            navController.navigate(Screen.VibrationScreen.route)
+            navController.navigate(Screen.TimerScreen.route)
         },
         onNavigateToDetails = { dataType: String, index: Int ->
             navController.navigate(
@@ -113,7 +113,7 @@ private fun HomeScreenContent(
             Button(onClick = {
                 onNavigateToDummyScreenClick.invoke()
             }) {
-                Text(text = "Navigate to dummy screen")
+                Text(text = "Navigate to timer screen")
             }
             when (viewData) {
                 is ViewData.Data -> {

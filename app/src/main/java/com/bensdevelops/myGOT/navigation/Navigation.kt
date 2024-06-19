@@ -8,10 +8,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bensdevelops.myGOT.core.base.ui.ErrorScreen
-import com.bensdevelops.myGOT.ui.screens.dummyScreen.DummyScreen
+import com.bensdevelops.myGOT.ui.screens.dummyScreen.TimerScreen
 import com.bensdevelops.myGOT.ui.screens.detailsScreen.DetailsScreen
 import com.bensdevelops.myGOT.ui.screens.detailsScreen.DetailsScreenViewModel
-import com.bensdevelops.myGOT.ui.screens.dummyScreen.DummyScreenViewModel
+import com.bensdevelops.myGOT.ui.screens.dummyScreen.TimerScreenViewModel
 import com.bensdevelops.myGOT.ui.screens.homeScreen.HomeScreen
 import com.bensdevelops.myGOT.ui.screens.homeScreen.HomeScreenViewModel
 
@@ -31,10 +31,10 @@ fun Navigation() {
             )
         }
         composable(
-            route = Screen.VibrationScreen.route
+            route = Screen.TimerScreen.route
         ) {
-            val vm = hiltViewModel<DummyScreenViewModel>()
-            DummyScreen(navController = navController, viewModel = vm)
+            val vm = hiltViewModel<TimerScreenViewModel>()
+            TimerScreen(navController = navController, viewModel = vm)
         }
         composable(
             route = Screen.ErrorScreen.route

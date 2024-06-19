@@ -6,7 +6,7 @@ sealed class Screen(
 ) {
     object HomeScreen : Screen("home_screen")
 
-    object VibrationScreen : Screen("vibration_screen")
+    object TimerScreen : Screen("timer_screen")
 
     object ErrorScreen : Screen("error_route")
 
