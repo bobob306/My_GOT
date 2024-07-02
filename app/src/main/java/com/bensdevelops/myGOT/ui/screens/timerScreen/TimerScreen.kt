@@ -1,4 +1,4 @@
-package com.bensdevelops.myGOT.ui.screens.dummyScreen
+package com.bensdevelops.myGOT.ui.screens.timerScreen
 
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -7,13 +7,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -45,36 +45,48 @@ fun TimerScreen(
 ) {
     val context = LocalContext.current
     val vibrator = context.getSystemService(Vibrator::class.java)
-    val vibrationEffect = viewModel.vibrationEffect.collectAsState()
-    val number by viewModel.number.collectAsState()
-    val loading by viewModel.loading.collectAsState()
-    val count by viewModel.count.collectAsState()
+    val timerData by viewModel.timerData.collectAsState()
+    val event by viewModel.event.collectAsState()
     val scope = rememberCoroutineScope()
-    LaunchedEffect(key1 = vibrationEffect.value) {
-        if (!vibrationEffect.value) return@LaunchedEffect
+    LaunchedEffect(key1 = timerData[0].vibrationEffect) {
+        if (!timerData[0].vibrationEffect) return@LaunchedEffect
         Log.d("vib", "ration started now")
-
+        val longArray = longArrayOf(1000, 1000, 1000, 1000)
+        val vibration = VibrationEffect.createWaveform(longArray, -1)
         val effect = VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE)
-        vibrator.vibrate(effect)
+        vibrator.vibrate(vibration)
         viewModel.resetVibrationEffect()
     }
 
-    when (loading) {
-        false -> {
+    when (event) {
+        TimerScreenEvent.InitialScreen -> {
             TimerScreenInitialContent(
-                number = number,
+                number = timerData[0].number,
                 index = 0,
                 onHandleValueChange = {
                     viewModel.handleValueChange(it)
                 },
-                onClick = { scope.launch { viewModel.onClick() } },
+                onClick = { scope.launch { viewModel.onStartClick() } },
             )
         }
 
-        true -> {
+        TimerScreenEvent.CountdownScreen -> {
             TimerScreenContentWithTimer(
-                count = count,
+                count = timerData[0].remaining ?: 1,
                 onClearClick = viewModel::resetCountdown,
+                onAddTimer = viewModel::onAddTimer
+            )
+        }
+
+        TimerScreenEvent.FlowScreen -> {
+            MixedLazyRow(
+                timerData = timerData,
+                onClearClick = viewModel::resetCountdown,
+                onAddTimer = viewModel::onAddTimer,
+                onHandleValueChange = {
+                    viewModel.handleValueChange(it)
+                },
+                onStartClick = { scope.launch { viewModel.onStartClick() } },
             )
         }
     }
@@ -82,7 +94,7 @@ fun TimerScreen(
 
 @Composable
 fun TimerScreenInitialContent(
-    number: Int,
+    number: Int?,
     index: Int,
     onHandleValueChange: ((String) -> Unit),
     onClick: () -> Unit,
@@ -102,13 +114,13 @@ fun TimerScreenInitialContent(
             Text(text = "Enter your desired time")
             OutlinedTextField(
                 label = { Text(text = "Enter desired time") },
-                value = number.toString(),
+                value = number?.toString() ?: "",
                 onValueChange = { onHandleValueChange(it) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.padding(bottom = SizeTokens.medium)
             )
             // Vibration Button - OneShot
-            if (number > 0) {
+            if ((number ?: 0) > 0) {
                 Button(
                     shape = CircleShape,
                     modifier = Modifier
@@ -131,6 +143,7 @@ fun TimerScreenInitialContent(
 fun TimerScreenContentWithTimer(
     count: Int,
     onClearClick: () -> Unit,
+    onAddTimer: () -> Unit,
 ) {
     Surface(
         modifier = Modifier
@@ -165,7 +178,7 @@ fun TimerScreenContentWithTimer(
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally,
                 content = {
-                    Button(onClick = { }) {
+                    Button(onClick = {}) {
                         Text(text = "Add another timer")
                     }
                 },
@@ -194,6 +207,34 @@ fun CountDownTimer(
             Text(text = count.toString(), fontSize = 30.sp)
             Button(onClick = onClearClick) {
                 Text(text = "Cancel timer")
+            }
+        }
+    }
+}
+
+@Composable
+fun MixedLazyRow(
+    timerData: List<TimerData>,
+    onClearClick: () -> Unit,
+    onAddTimer: () -> Unit,
+    onHandleValueChange: ((String) -> Unit),
+    onStartClick: () -> Unit,
+) {
+    LazyRow(modifier = Modifier.fillMaxSize()) {
+        items(items = timerData ) {
+            if (it.remaining == 0) {
+                TimerScreenInitialContent(
+                    number = it.number,
+                    index = timerData.indexOf(it),
+                    onHandleValueChange = onHandleValueChange,
+                    onClick = onStartClick,
+                )
+            } else {
+                TimerScreenContentWithTimer(
+                    count = it.remaining ?: 1,
+                    onClearClick = onClearClick,
+                    onAddTimer = onAddTimer,
+                )
             }
         }
     }
