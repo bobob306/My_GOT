@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bensdevelops.myGOT.ui.screens.timerScreen.TimerScreenEvent.*
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import java.time.ZoneOffset
+import java.util.Timer
 import javax.inject.Inject
 
 data class TimerData(
@@ -21,18 +23,20 @@ data class TimerData(
 )
 
 sealed class TimerScreenEvent() {
-    data object InitialScreen: TimerScreenEvent()
-    data object CountdownScreen: TimerScreenEvent()
-    data object FlowScreen: TimerScreenEvent()
+    data object InitialScreen : TimerScreenEvent()
+    data object CountdownScreen : TimerScreenEvent()
+    data object FlowScreen : TimerScreenEvent()
+    data object Vibration : TimerScreenEvent()
 }
 
 class TimerScreenViewModel @Inject constructor() : ViewModel() {
-    private var _timerData = MutableStateFlow<List<TimerData>>(listOf(TimerData()))
+    private var _timerData = MutableStateFlow(listOf(TimerData()))
     val timerData: StateFlow<List<TimerData>> = _timerData.asStateFlow()
 
     private var _event = MutableStateFlow<TimerScreenEvent>(InitialScreen)
     val event = _event.asStateFlow()
 
+    private var job: Job? = null
 
     private var endTime: LocalDateTime? = null
 
@@ -43,7 +47,8 @@ class TimerScreenViewModel @Inject constructor() : ViewModel() {
     }
 
     fun resetVibrationEffect() {
-        _timerData.value = listOf(timerData.value.get(0).copy(vibrationEffect = false))
+        _timerData.value = listOf(timerData.value[0].copy(vibrationEffect = false))
+        _event.value = InitialScreen
     }
 
     fun onStartClick() {
@@ -53,7 +58,7 @@ class TimerScreenViewModel @Inject constructor() : ViewModel() {
     }
 
     private fun startCountdown(initialValue: Int) {
-        viewModelScope.launch {
+        job = viewModelScope.launch {
             endTime = LocalDateTime.now().plusSeconds(initialValue.toLong())
             _timerData.value = listOf(timerData.value[0].copy(remaining = initialValue))
             while (endTime!! > LocalDateTime.now() && (_timerData.value[0].remaining ?: 0) > 0) {
@@ -68,9 +73,10 @@ class TimerScreenViewModel @Inject constructor() : ViewModel() {
             if ((timerData.value[0].remaining ?: 0) > 0) {
                 _timerData.value = listOf(timerData.value[0].copy(remaining = 0))
             }
-            _timerData.value = listOf(timerData.value[0].copy(vibrationEffect = true, loading = false))
-            _event.value = InitialScreen
-
+            _timerData.value =
+                listOf(timerData.value[0].copy(vibrationEffect = true, loading = false))
+            Log.d("this", "got hit")
+            _event.value = Vibration
         }
     }
 
@@ -81,6 +87,7 @@ class TimerScreenViewModel @Inject constructor() : ViewModel() {
     }
 
     fun resetCountdown() {
+        job?.cancel()
         _timerData.value =
             listOf(timerData.value[0].copy(remaining = 0, vibrationEffect = false, loading = false))
         _event.value = InitialScreen

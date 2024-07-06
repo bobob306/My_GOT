@@ -48,18 +48,18 @@ fun TimerScreen(
     val timerData by viewModel.timerData.collectAsState()
     val event by viewModel.event.collectAsState()
     val scope = rememberCoroutineScope()
-    LaunchedEffect(key1 = timerData[0].vibrationEffect) {
-        if (!timerData[0].vibrationEffect) return@LaunchedEffect
-        Log.d("vib", "ration started now")
-        val longArray = longArrayOf(1000, 1000, 1000, 1000)
-        val vibration = VibrationEffect.createWaveform(longArray, -1)
-        val effect = VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE)
-        vibrator.vibrate(vibration)
-        viewModel.resetVibrationEffect()
-    }
 
     when (event) {
-        TimerScreenEvent.InitialScreen -> {
+
+        is TimerScreenEvent.Vibration -> {
+            Log.d("vib", "ration started now")
+            val longArray = longArrayOf(0, 1000, 100, 1000)
+            val vibration = VibrationEffect.createWaveform(longArray, -1)
+            vibrator.vibrate(vibration)
+            viewModel.resetVibrationEffect()
+        }
+
+        is TimerScreenEvent.InitialScreen -> {
             TimerScreenInitialContent(
                 number = timerData[0].number,
                 index = 0,
@@ -70,7 +70,7 @@ fun TimerScreen(
             )
         }
 
-        TimerScreenEvent.CountdownScreen -> {
+        is TimerScreenEvent.CountdownScreen -> {
             TimerScreenContentWithTimer(
                 count = timerData[0].remaining ?: 1,
                 onClearClick = viewModel::resetCountdown,
@@ -78,7 +78,7 @@ fun TimerScreen(
             )
         }
 
-        TimerScreenEvent.FlowScreen -> {
+        is TimerScreenEvent.FlowScreen -> {
             MixedLazyRow(
                 timerData = timerData,
                 onClearClick = viewModel::resetCountdown,
@@ -221,7 +221,7 @@ fun MixedLazyRow(
     onStartClick: () -> Unit,
 ) {
     LazyRow(modifier = Modifier.fillMaxSize()) {
-        items(items = timerData ) {
+        items(items = timerData) {
             if (it.remaining == 0) {
                 TimerScreenInitialContent(
                     number = it.number,
