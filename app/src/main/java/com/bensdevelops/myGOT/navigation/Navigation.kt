@@ -8,10 +8,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bensdevelops.myGOT.core.base.ui.ErrorScreen
-import com.bensdevelops.myGOT.ui.screens.dummyScreen.TimerScreen
+import com.bensdevelops.myGOT.ui.screens.timerScreen.TimerScreen
 import com.bensdevelops.myGOT.ui.screens.detailsScreen.DetailsScreen
 import com.bensdevelops.myGOT.ui.screens.detailsScreen.DetailsScreenViewModel
-import com.bensdevelops.myGOT.ui.screens.dummyScreen.TimerScreenViewModel
+import com.bensdevelops.myGOT.ui.screens.timerScreen.TimerScreenViewModel
 import com.bensdevelops.myGOT.ui.screens.homeScreen.HomeScreen
 import com.bensdevelops.myGOT.ui.screens.homeScreen.HomeScreenViewModel
 
