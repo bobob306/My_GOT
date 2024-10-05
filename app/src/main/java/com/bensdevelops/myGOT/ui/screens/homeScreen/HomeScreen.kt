@@ -64,6 +64,9 @@ fun HomeScreen(
                 },
             )
         },
+        onNavigateToFlashCardScreen = {
+            navController.navigate(Screen.FlashCardScreen.route)
+        },
     )
 }
 
@@ -78,6 +81,7 @@ private fun HomeScreenContent(
     onClearClick: () -> Unit,
     onNavigateToDummyScreenClick: () -> Unit,
     onNavigateToDetails: (String, Int) -> Unit,
+    onNavigateToFlashCardScreen: () -> Unit,
 ) {
     Surface(
         Modifier
@@ -115,6 +119,9 @@ private fun HomeScreenContent(
             }) {
                 Text(text = "Navigate to timer screen")
             }
+            Button(onClick = { onNavigateToFlashCardScreen.invoke() }) {
+                Text(text = "Navigate to flash card screen")
+            }
             when (viewData) {
                 is ViewData.Data -> {
                     when (viewData.content.showData) {
@@ -148,5 +155,5 @@ private fun HomeScreenContent(
 @Preview
 @Composable
 private fun HomeScreenContentPreview() {
-    HomeScreenContent(null, {}, {}, {}, {}, {}, { _, _ -> })
+    HomeScreenContent(null, {}, {}, {}, {}, {}, { _, _ -> }, {},)
 }

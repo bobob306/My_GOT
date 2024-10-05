@@ -12,6 +12,8 @@ sealed class Screen(
 
     object DetailsScreen: Screen(route = "detailsScreen", arguments = null)
 
+    object FlashCardScreen: Screen(route = "flashCardScreen")
+
     fun withArgs(vararg args: Any): String {
         return buildString {
             append(route)

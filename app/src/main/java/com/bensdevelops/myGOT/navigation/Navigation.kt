@@ -11,6 +11,8 @@ import com.bensdevelops.myGOT.core.base.ui.ErrorScreen
 import com.bensdevelops.myGOT.ui.screens.timerScreen.TimerScreen
 import com.bensdevelops.myGOT.ui.screens.detailsScreen.DetailsScreen
 import com.bensdevelops.myGOT.ui.screens.detailsScreen.DetailsScreenViewModel
+import com.bensdevelops.myGOT.ui.screens.flashcardscreen.FlashCardScreen
+import com.bensdevelops.myGOT.ui.screens.flashcardscreen.FlashCardViewModel
 import com.bensdevelops.myGOT.ui.screens.timerScreen.TimerScreenViewModel
 import com.bensdevelops.myGOT.ui.screens.homeScreen.HomeScreen
 import com.bensdevelops.myGOT.ui.screens.homeScreen.HomeScreenViewModel
@@ -56,6 +58,12 @@ fun Navigation() {
         ) {
             val vm = hiltViewModel<DetailsScreenViewModel>()
             DetailsScreen(viewModel = vm, navController = navController)
+        }
+        composable(
+            route = Screen.FlashCardScreen.route
+        ) {
+            val vm = hiltViewModel<FlashCardViewModel>()
+            FlashCardScreen(viewModel = vm, navController = navController)
         }
     }
 }
