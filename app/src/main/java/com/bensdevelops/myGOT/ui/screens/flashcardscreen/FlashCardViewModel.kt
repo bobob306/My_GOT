@@ -1,25 +1,130 @@
 package com.bensdevelops.myGOT.ui.screens.flashcardscreen
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bensdevelops.myGOT.core.base.ViewData
 import com.bensdevelops.myGOT.ui.screens.flashcardscreen.viewdata.FlashCardViewData
+import com.google.firebase.firestore.FirebaseFirestoreSettings
+import com.google.firebase.firestore.FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.firestore.ktx.persistentCacheSettings
+import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class FlashCardViewModel @Inject constructor() : ViewModel() {
-    private var _viewData =
-        MutableLiveData<ViewData<FlashCardViewData>>(ViewData.Data(flashCardList.random()))
+
+    val db = Firebase.firestore
+    val settings = FirebaseFirestoreSettings
+        .Builder()
+        .setLocalCacheSettings(
+            persistentCacheSettings {
+                CACHE_SIZE_UNLIMITED
+            }
+        )
+        .build()
+
+    private var _viewData = MutableLiveData<ViewData<FlashCardViewData>>(ViewData.Loading())
     val viewData: LiveData<ViewData<FlashCardViewData>> get() = _viewData
-    fun onNextQuestionClick() {
+
+    var flashDatabase = listOf<FlashCardViewData>()
+
+    init {
+        db.firestoreSettings = settings
+        getFlashCards()
+//        uploadFlashCards()
+    }
+
+    fun getFlashCards() {
         viewModelScope.launch {
-            _viewData.value = ViewData.Loading()
-            _viewData.value = ViewData.Data(flashCardList.random())
+            db.collection("FlashCardList")
+                .get()
+                .addOnSuccessListener { download ->
+                    Log.d("Great Success", "Success")
+                    val flashCardDownloads: MutableList<FlashCardViewData> = mutableListOf()
+                    download.documents[0].data?.let { successfulDownload ->
+                        successfulDownload["flashCardList"].let { list ->
+                            list as List<*>
+                            list.forEach {
+                                it as Map<*, *>
+                                val flashCard = FlashCardViewData(
+                                    it["question"].toString(),
+                                    it["answer"].toString()
+                                )
+                                flashCardDownloads.add(flashCard)
+                            }
+                        }
+                    }
+                    flashDatabase = flashCardDownloads
+                    _viewData.value = ViewData.Data(flashCardDownloads.random())
+                }
+                .addOnFailureListener {
+                    Log.d("Failure", "Download error")
+                }
+
         }
+    }
+
+    fun uploadFlashCards() {
+
+        viewModelScope.launch {
+            val questionBankData: MutableMap<String, Any> = HashMap()
+            questionBankData["flashCardList"] = flashCardList
+            db.collection("FlashCardList")
+                .add(questionBankData)
+                .addOnSuccessListener { documentReference ->
+                    Log.d("Success TAG", "DocumentSnapshot added with ID: ${documentReference.id}")
+                }
+                .addOnFailureListener { e ->
+                    Log.w("Failure TAG", "Error adding document", e)
+                }
+        }
+
+//        viewModelScope.launch {
+//            val flashCardHashMapList = mutableListOf<HashMap<String, String>>()
+//            flashCardList.forEach {
+//                val flashCardHashMap = hashMapOf(
+//                    "question" to it.question,
+//                    "answer" to it.answer
+//                )
+//                flashCardHashMapList.add(flashCardHashMap)
+//            }
+//            db.collection("FlashCardList")
+//                .add(flashCardHashMapList).addOnSuccessListener { documentReference ->
+//                    Log.d("Success", "Upload Successful ${documentReference.id}")
+//                }
+//                .addOnFailureListener { e ->
+//                    Log.d("Failure", "Upload Failed", e)
+//                }
+//        }
+    }
+
+    fun onNextQuestionClick() {
+        _viewData.value = ViewData.Data(flashDatabase.random())
+//        viewModelScope.launch {
+//            for (i in flashCardList) {
+//                val flashCard = hashMapOf(
+//                    "question" to (i.question),
+//                    "answer" to (i.answer)
+//                )
+//                db.collection("FlashCards")
+//                    .add(flashCard)
+//                    .addOnSuccessListener { documentReference ->
+//                        Log.d(
+//                            "Success",
+//                            "DocumentSnapshot written with ID: ${documentReference.id}"
+//                        )
+//                    }
+//                    .addOnFailureListener { e ->
+//                        Log.w("Failure", "Error adding document", e)
+//                    }
+//            }
+//        }
     }
 }
 
@@ -519,8 +624,451 @@ val flashCardList = listOf(
         answer = "Sealed classes provide the flexibility of having different types of subclasses and the ability to contain state. " +
                 "An important point to note is that the subclasses extending the sealed class must be either nested classes of the sealed class or declared in the same file as the sealed class."
     ),
+    FlashCardViewData(
+        question = "What are the access modifiers you know? What does each one do?",
+        answer = """
+            public (by default in Kotlin): grants access from any class and method anywhere.
+            private (by default in Java): visible only to its containing class and its methods.
+            protected: allows access only to subclasses and classes in the same package.
+            internal (just Kotlin): accessible to any client inside the same module.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is the difference between overriding and overloading a method in Java?",
+        answer = """
+            Overload: one method with different signatures and input parameters.
+            @Override: occurs when a subclass has the same method or property as the parent class.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "Can an Interface/Class extend another/multiple Interfaces?",
+        answer = """
+            An interface can extend multiple interfaces.
+            A single class can implement multiple interfaces, but only one abstract class.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What does the static word mean in Java?",
+        answer = "Static members belong to the class instead of a specific instance."
+    ),
+    FlashCardViewData(
+        question = "Can a static method be overridden in Java?",
+        answer = "Static methods cannot be overridden because they are not dispatched on the object instance at runtime."
+    ),
+    FlashCardViewData(
+        question = "Can a constructor be inherited?",
+        answer = "Constructors are not members of classes and only members are inherited."
+    ),
+    FlashCardViewData(
+        question = "What is the difference between Composition and Inheritance? How should we decide which one to use?",
+        answer = """
+            Composition: a design principle where a class is composed of one or more objects of other classes, indicating a “has-a” relationship.
+            Inheritance: a mechanism where a class extends another class, representing an “is-a” relationship.
+            Use the is-a vs has-a rule to decide. For example, a cat is an animal (inheritance), but a person has a job (composition).
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "Do you know SOLID software programming design principles?",
+        answer = """
+            Single Responsibility Principle: A class should have only a single responsibility; one change in specifications should affect only that class.
+            Open / Closed Principle: Software entities should be open for extension but closed for modification.
+            Liskov Substitution Principle: Objects should be replaceable with instances of their subtypes without altering the correctness of the program.
+            Interface Segregation Principle: Clients should not be forced to depend on interfaces they do not use.
+            Dependency Inversion Principle: High-level modules should not depend on low-level modules; both should depend on abstractions.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is the Single Responsibility Principle?",
+        answer = "A class should have only a single responsibility; one change in the software’s specification should affect only that class."
+    ),
+    FlashCardViewData(
+        question = "What is the Open / Closed Principle?",
+        answer = "Software entities should be open for extension but closed for modification."
+    ),
+    FlashCardViewData(
+        question = "What is the Liskov Substitution Principle?",
+        answer = "Objects should be replaceable with instances of their subtypes without altering the correctness of the program."
+    ),
+    FlashCardViewData(
+        question = "What is the Interface Segregation Principle?",
+        answer = "Clients should not be forced to depend on interfaces they do not use; many client-specific interfaces are better than one general-purpose interface."
+    ),
+    FlashCardViewData(
+        question = "What is the Dependency Inversion Principle?",
+        answer = "High-level modules should not depend on low-level modules; both should depend on abstractions. Program to an interface, not to an implementation."
+    ),
+    FlashCardViewData(
+        question = "What is Encapsulation in OOP?",
+        answer = """
+            Encapsulation keeps classes private and prevents external code from modifying them.
+            It ensures data security by bundling data and methods within a class.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is Inheritance in OOP?",
+        answer = """
+            Inheritance allows new classes to be created from existing ones, promoting code reuse.
+            It makes OOP code more modular and easier to build relationships between classes.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is Polymorphism in OOP?",
+        answer = """
+            Polymorphism allows objects to take on multiple forms, enhancing flexibility.
+            It enables program code to have different meanings or functions.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is Abstraction in OOP?",
+        answer = """
+            Abstraction displays only the relevant aspects to the user while filtering out unnecessary details.
+            This ensures simplicity in the interface and interaction with the user.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is the difference between Abstract Class and Interface?",
+        answer = """
+            Abstract Class:
+            - Can have both abstract methods (without implementation) and concrete methods (with implementation).
+            - Supports constructors and state (fields).
+            - A class can inherit only one abstract class (single inheritance).
+            - Suitable for sharing code among closely related classes.
+
+            Interface:
+            - Can only have abstract methods (prior to Java 8) and default methods (with implementation starting from Java 8).
+            - Cannot have constructors or state (fields) directly.
+            - A class can implement multiple interfaces (multiple inheritance).
+            - Ideal for defining capabilities that can be shared across different classes.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "How does Kotlin work on Android?",
+        answer = "Kotlin code is compiled into Java bytecode, which is executed at runtime by the Java Virtual Machine (JVM), just like Java."
+    ),
+    FlashCardViewData(
+        question = "Why should we use Kotlin?",
+        answer = """
+            - Kotlin is concise and boilerplate-free, reducing the amount of code you need to write compared to Java.
+            - Kotlin is null-safe, which helps prevent null pointer exceptions.
+            - Kotlin is interoperable, meaning it can easily work with existing Java code.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is a CoroutineScope?",
+        answer = """
+            A CoroutineScope defines the scope for new coroutines.
+            Every coroutine builder is an extension of CoroutineScope and inherits its context.
+            Scopes are useful for canceling background tasks when an activity is destroyed.
+            In Android, use custom scopes based on the lifecycle of Activity, ViewModel, etc.
+            Ensure the required dependencies for scopes are added to your project.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "How is Exception Handling done in Kotlin Coroutines?",
+        answer = """
+            1. Using a try-catch block.
+            2. Using CoroutineExceptionHandler:
+               val handler = CoroutineExceptionHandler { _, exception ->
+                   Log.d(TAG, exception handled!")
+               }
+               GlobalScope.launch(Dispatchers.Main + handler) {
+                   fetchUserAndSaveInDatabase() // do on IO thread and back to UI Thread
+               }
+            - For async, use:
+                - supervisorScope with individual try-catch to continue if some tasks fail.
+                - coroutineScope with top-level try-catch to not continue if any task fails.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is withContext and when would you use it?",
+        answer = "withContext is used to switch the context of a coroutine, useful for performing operations on a different thread, like switching to the main thread for UI updates."
+    ),
+    FlashCardViewData(
+        question = "What is a Flow in Kotlin and how is it related to coroutines?",
+        answer = "Flow is a type that can emit multiple values sequentially, unlike suspend functions that return a single value. Flow builds upon coroutines to handle streams of data asynchronously."
+    ),
+    FlashCardViewData(
+        question = "What is the difference between coroutine context and coroutine scope?",
+        answer = """
+            - Coroutine Context: A set of rules defining the behavior of a coroutine, including its job, dispatcher, and configurations. It controls where the coroutine runs.
+            - Coroutine Scope: Provides a structured way to launch coroutines, defining their lifecycle. When a scope is canceled, all coroutines within it are canceled. It manages the execution of coroutines to prevent leaks and ensure cleanup.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What are Reified types in Kotlin?",
+        answer = """
+            Reified types address the limitation of generics known as type erasure:
+            - Type Erasure: Generic type information is erased at runtime, meaning the specific type parameter is not available.
+            - Inline Functions: The inline keyword allows the function's body to be inlined at the call site, copying bytecode rather than calling normally.
+            - Reified Keyword: When a type parameter of an inline function is marked as reified, it preserves type information at runtime, enabling operations like type checks and obtaining the class of the type parameter.
+
+            Example:
+            inline fun <reified T> genericsExample(value: T) {
+                println(value)
+                println("Type of T: /"$"{T::class.java}")
+            }
+            fun main() {
+                genericsExample<String>("Learning Generics!")
+                genericsExample<Int>(100)
+            }
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "Explain the use-case of let, run, with, also, apply in Kotlin.",
+        answer = """
+            These are scope functions used to execute a block of code within the context of an object:
+
+            - let: Executes a block with the object as its parameter, often for null checks.
+              Example: val result = "Hello".let { it.length }
+
+            - run: Similar to let but uses this to refer to the object, useful for multiple method calls.
+              Example: val result = "Hello".run { length }
+
+            - with: A non-extension function that takes the context object as an argument, ideal for calling multiple methods.
+              Example: with(numbers) { println(size) }
+
+            - also: Used to perform additional operations while keeping the object unmodified, returns the original object.
+              Example: numbers.also { println(it) }.add("four")
+
+            - apply: Configures an object, with the object as this inside the block, and returns the object itself.
+              Example: val person = Person().apply { name = "John Doe"; age = 25 }
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What are collections in Kotlin?",
+        answer = """
+            Collections in Kotlin are a fundamental concept for storing and manipulating groups of objects, similar to collections in other languages.
+
+            - Lists: Ordered collections that can contain duplicate elements, allowing access by indices.
+              Example: val numbers = listOf(1, 2, 3, 4)
+              println(numbers[2]) // Output: 3
+
+            - Sets: Unordered collections that only contain unique elements, not allowing duplicates.
+              Example: val fruits = setOf("apple", "banana", "kiwi")
+              println(fruits.size) // Output: 3
+
+            - Maps: Collections of key-value pairs where each key is unique, useful for storing logical connections.
+              Example: val capitals = mapOf("Germany" to "Berlin", "France" to "Paris")
+              println(capitals["Germany"]) // Output: Berlin
+
+            Kotlin provides both mutable and immutable versions of these collections:
+            - Immutable collections are read-only.
+            - Mutable collections allow modification (adding, removing, updating elements).
+            
+            The collection interfaces and related functions are found in the kotlin.collections package.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is Context in Android?",
+        answer = "A Context is a handle to the system that provides services like resolving resources, accessing databases, and managing preferences."
+    ),
+    FlashCardViewData(
+        question = "What is the difference between Application Context and Activity Context?",
+        answer = """
+            - Application Context: 
+              - Tied to the lifecycle of the entire application.
+              - Use when you need a context whose lifecycle is separate from the current context or when passing a context beyond an activity's scope.
+
+            - Activity Context:
+              - Available within an activity and tied to its lifecycle.
+              - Use when passing context within the scope of an activity or when you need a context that is attached to the current activity's lifecycle.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What kind of modes of concurrency are in Android?",
+        answer = """
+            - Threads: The smallest unit of execution within a process.
+            - Async Tasks: Simplifies the execution of background operations and updates the UI thread.
+            - Services: Handles background processing associated with an application.
+            - Kotlin Coroutines: Provides a more efficient and simpler way to manage asynchronous programming.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "Are you familiar with ProGuard/DexGuard/R8 Minification?",
+        answer = """
+            - ProGuard: An open-source tool that shrinks, optimizes, and obfuscates Java code, removing unused resources and making reverse-engineering harder.
+            - DexGuard: A commercial tool offering advanced protection features, stronger encryption, and better tamper resistance than ProGuard.
+            - R8: The latest official code shrinker from Google, integrated into Android Studio. It combines shrinking, desugaring, dexing, and obfuscation, improving build times and reducing APK sizes while being backward-compatible with ProGuard.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is the difference between a process and a thread?",
+        answer = """
+            - Process:
+              - Runs in its own instance of the virtual machine.
+              - Contains components like activities, services, and broadcast receivers.
+              - Can be specified to run certain components separately via AndroidManifest.xml.
+              - Managed by the Android system, which may shut down processes to conserve resources.
+              - Isolated from others, ensuring no interference.
+
+            - Thread:
+              - The smallest unit of execution within a process.
+              - The main thread handles UI and event dispatching.
+              - Additional threads can be created for background work.
+              - Threads within the same process share the same memory space.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is the difference between a process and a task?",
+        answer = """
+            - Process: Refers to the execution and management of resources at the system level.
+            - Task: Refers to the user's journey through a sequence of activities within or across applications.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is an Adapter in Android?",
+        answer = """
+            An Adapter is an interface whose implementations provide data to be displayed by ListView or RecyclerView.
+            ListViews and RecyclerViews do not contain data themselves; they serve as UI components that display the data provided by the Adapter.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is the size limit of a Bundle in Android?",
+        answer = """
+            The size limit for a Bundle is approximately 500 KB. 
+            If a large amount of data is passed inside Intents, 
+            a TransactionTooLargeException may be thrown by the system, 
+            potentially leading to application crashes or unexpected behavior.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is the difference between Intent, Sticky Intent, and Pending Intent?",
+        answer = """
+            - Intent: A message-passing mechanism that facilitates communication between Android components, except for Content Providers. It can be used to start activities, services, or send broadcasts.
+
+            - Sticky Intent: A type of intent that remains in the system for future broadcast listeners. It allows applications to retrieve the last known data sent through the intent even after the original sender has finished.
+
+            - Pending Intent: A wrapper around an Intent that allows another application to execute it in the future, even if the original app is not currently running. It is often used with notifications and alarm managers.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What are the two types of Intent in Android?",
+        answer = """
+            - Explicit Intent: Used to launch a specific application component by specifying its class. 
+              Example:
+              val intent = Intent(getApplicationContext(), ActivityTwo::class.java)
+              startActivity(intent)
+
+            - Implicit Intent: Specifies an action that can invoke any app on the device capable of performing that action, allowing for broader application interactions.
+              Example:
+              val intent = Intent(Intent.ACTION_VIEW)
+              intent.setData(Uri.parse("https://google.com"))
+              startActivity(intent)
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is a 9-patch image? Does it tile or stretch?",
+        answer = """
+            9-patch images are stretchable, repeatable images that are reduced to their smallest size. 
+            They can stretch in certain areas while keeping the corners intact, allowing for flexible UI designs.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "How can you handle user input and events in Jetpack Compose?",
+        answer = """
+            User input and events can be handled using event callbacks and state variables. 
+            Composable functions can define event callbacks that trigger on user interactions, modifying state variables and leading to UI recomposition and updates.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is the purpose of ViewModel in Jetpack Compose?",
+        answer = """
+            The ViewModel is used for managing and preserving UI-related data across configuration changes. 
+            It separates UI logic from UI components and allows data sharing between multiple Composable functions, accessible via viewModel or viewModel<>().
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "How do you perform animations in Jetpack Compose?",
+        answer = """
+            Animations can be performed using the animate* family of functions, which allow you to animate changes to UI properties like size, position, opacity, and color. 
+            Jetpack Compose handles animation updates and UI recomposition automatically.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What is the purpose of ConstraintLayout in Jetpack Compose?",
+        answer = """
+            ConstraintLayout is used to create complex and responsive layouts by defining constraints between UI elements. 
+            It enables flexible positioning and resizing based on available space, helping to build dynamic and adaptive UIs.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "How do you handle theming and styling in Jetpack Compose?",
+        answer = """
+            Theming and styling are managed using MaterialTheme and @Composable functions. 
+            MaterialTheme provides pre-defined styles, while @Composable allows for creating custom styles and applying them to UI elements.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "How do you test UI components in Jetpack Compose?",
+        answer = """
+            Jetpack Compose offers a testing framework to write tests for UI components using @Composable test rule and composeTestRule. 
+            These tools enable interaction and assertions on Composable functions and UI elements.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "How can you handle input validation in Jetpack Compose?",
+        answer = """
+            Input validation is managed by combining state management and event callbacks. 
+            State variables can hold input values, and validation logic can be defined within callbacks, allowing for UI updates based on validation results.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "Explain the concept of accessibility support in Jetpack Compose.",
+        answer = """
+            Accessibility support ensures UIs are accessible to users with disabilities. 
+            Compose provides accessibility modifiers (e.g., semantics, screenReaderOnly, clickable) and setContentDescription to enhance accessibility for UI elements.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "What are the best practices for performance optimization in Jetpack Compose?",
+        answer = """
+            - Minimize unnecessary recompositions by using immutable state objects.
+            - Use the remember function to cache expensive computations.
+            - Utilize the key parameter to control the identity of Composable functions.
+            - Use LaunchedEffect and coroutine-based APIs for asynchronous operations off the main thread.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "Why do you use dependency injection (DI / Dagger)?",
+        answer = """
+            Dependency Injection allows a class to receive its dependencies from external sources, promoting Inversion of Control. 
+            Benefits include:
+            - Decoupling the system
+            - Easier unit testing
+            - Simplifying class structure by keeping them small
+            - Facilitating the wiring of different components
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "Explain the dependency rule in Clean Architecture.",
+        answer = """
+            In Clean Architecture, the dependency rule states that dependencies should point from the outermost layers to the innermost layers. 
+            This helps maintain a clear separation of concerns and ensures that high-level modules are not dependent on low-level modules.
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "Why should we use MVP / MVVM architectures?",
+        answer = """
+            MVP and MVVM architectures help:
+            - Avoid excessive logic in the UI layer and prevent "god activities"
+            - Create reusable and easily testable code
+            - Reduce code duplication across common views
+            - Enhance maintainability
+            - Allow testing of logic without requiring instrumentation tests
+        """.trimIndent()
+    ),
+    FlashCardViewData(
+        question = "Why should the View be implemented with an interface in MVP?",
+        answer = """
+            Implementing the View as an interface promotes decoupling from the implementation details. 
+            This abstraction allows for:
+            - Changing the view implementation easily
+            - Adhering to the SOLID principles to improve unit testability
+            - Ensuring that high-level concepts (like the presenter) do not depend on low-level details (like the specific view implementation)
+        """.trimIndent()
+    ),
 
 
-)
+    )
 
 

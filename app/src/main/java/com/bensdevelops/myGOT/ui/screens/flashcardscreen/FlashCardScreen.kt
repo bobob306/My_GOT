@@ -6,10 +6,9 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -93,11 +92,7 @@ fun FlashCardScreenContent(
             .background(MaterialTheme.colorScheme.background)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-            FlashCard(viewData, onNextQuestionClick, onCardClick, flipped)
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(onNavigateToHome) {
-                Text(text = "Navigate Home")
-            }
+            FlashCard(viewData, onNextQuestionClick, onCardClick, onNavigateToHome, flipped)
         }
     }
 
@@ -108,6 +103,7 @@ fun FlashCard(
     viewData: FlashCardViewData,
     onNextQuestionClick: () -> Unit,
     onCardClick: () -> Unit,
+    onNavigateToHome: () -> Unit,
     flipped: Boolean
 ) {
 
@@ -127,31 +123,49 @@ fun FlashCard(
     ) {
         if (it) 180f else 0f
     }
-    Card(
-        onClick = { onCardClick() },
-        modifier = Modifier
-            .background(color = MaterialTheme.colorScheme.primaryContainer)
-            .fillMaxWidth()
-            .padding(16.dp)
-            .graphicsLayer {
-                rotationY = rotation
-                cameraDistance = 12f * density
-            }
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            if (rotation < 90f) {
-                QuestionContent(question = viewData.question)
-            } else {
-                // Apply rotation to the back content
-                Column(modifier = Modifier.graphicsLayer { rotationY = 180f }) {
-                    AnswerContent(answer = viewData.answer)
-                    Button(onClick = {
-                        onNextQuestionClick()
-                    }, modifier = Modifier.padding(16.dp)) {
-                        Text(text = "Next Question")
+    Column {
+        Card(
+            onClick = { onCardClick() },
+            modifier = Modifier
+                .background(color = MaterialTheme.colorScheme.primaryContainer)
+                .fillMaxWidth()
+                .padding(16.dp)
+                .graphicsLayer {
+                    rotationY = rotation
+                    cameraDistance = 12f * density
+                }
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.9f)
+            ) {
+                if (rotation < 90f) {
+                    QuestionContent(question = viewData.question)
+                } else {
+                    // Apply rotation to the back content
+                    Column(modifier = Modifier.graphicsLayer { rotationY = 180f }) {
+                        AnswerContent(answer = viewData.answer)
+                        Button(onClick = {
+                            onNextQuestionClick()
+                        }, modifier = Modifier.padding(16.dp)) {
+                            Text(text = "Next Question")
+                        }
                     }
                 }
             }
+        }
+        Button(
+            onNavigateToHome,
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Navigate Home",
+                color = MaterialTheme.colorScheme.onPrimary,
+            )
         }
     }
 }
@@ -160,7 +174,7 @@ fun FlashCard(
 fun QuestionContent(question: String) {
     Box(
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxWidth()
             .padding(16.dp)
             .background(MaterialTheme.colorScheme.primary)
     ) {
