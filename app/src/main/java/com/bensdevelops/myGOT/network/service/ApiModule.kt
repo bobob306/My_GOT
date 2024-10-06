@@ -3,8 +3,13 @@ package com.bensdevelops.myGOT.network.service
 import com.bensdevelops.myGOT.network.model.BookModel
 import com.bensdevelops.myGOT.network.model.CharacterModel
 import com.bensdevelops.myGOT.network.model.HouseModel
+import com.bensdevelops.myGOT.network.repository.FlashCardRepository
+import com.bensdevelops.myGOT.network.repository.FlashCardRepositoryImpl
 import com.bensdevelops.myGOT.network.repository.Repository
 import com.bensdevelops.myGOT.network.repository.RepositoryImpl
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,11 +27,10 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
-import retrofit2.http.Query
-import retrofit2.http.QueryName
 import java.io.IOException
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -59,6 +63,11 @@ object ApiModule {
     @Provides
     fun provideRepository(retrofitApi: RetrofitApi): Repository {
         return RepositoryImpl(retrofitApi)
+    }
+
+    @Provides
+    fun provideFlashCardRepository(): FlashCardRepository {
+        return FlashCardRepositoryImpl()
     }
 
 }

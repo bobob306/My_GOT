@@ -143,6 +143,7 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation("com.google.firebase:firebase-database-ktx")
+    implementation('com.google.android.gms:play-services-base:18.5.0')
 }
 
 kapt {

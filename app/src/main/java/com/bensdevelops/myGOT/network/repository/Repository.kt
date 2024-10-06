@@ -2,10 +2,8 @@ package com.bensdevelops.myGOT.network.repository
 
 import com.bensdevelops.myGOT.network.model.BookModel
 import com.bensdevelops.myGOT.network.model.CharacterModel
-import com.bensdevelops.myGOT.network.model.CoreModel
 import com.bensdevelops.myGOT.network.model.HouseModel
 import com.bensdevelops.myGOT.network.service.RetrofitApi
-import dagger.Provides
 import javax.inject.Inject
 
 interface Repository {

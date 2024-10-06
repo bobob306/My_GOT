@@ -6,67 +6,53 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bensdevelops.myGOT.core.base.ViewData
+import com.bensdevelops.myGOT.network.repository.FlashCardDto
+import com.bensdevelops.myGOT.network.repository.FlashCardRepository
 import com.bensdevelops.myGOT.ui.screens.flashcardscreen.viewdata.FlashCardViewData
-import com.google.firebase.firestore.FirebaseFirestoreSettings
-import com.google.firebase.firestore.FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.firestore.ktx.persistentCacheSettings
-import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class FlashCardViewModel @Inject constructor() : ViewModel() {
-
-    val db = Firebase.firestore
-    val settings = FirebaseFirestoreSettings
-        .Builder()
-        .setLocalCacheSettings(
-            persistentCacheSettings {
-                CACHE_SIZE_UNLIMITED
-            }
-        )
-        .build()
+class FlashCardViewModel @Inject constructor(
+    private val repository: FlashCardRepository,
+) : ViewModel() {
 
     private var _viewData = MutableLiveData<ViewData<FlashCardViewData>>(ViewData.Loading())
     val viewData: LiveData<ViewData<FlashCardViewData>> get() = _viewData
 
     var flashDatabase = listOf<FlashCardViewData>()
 
-    init {
-        db.firestoreSettings = settings
-        getFlashCards()
-//        uploadFlashCards()
+    private fun getFlashCards() {
+        viewModelScope.launch {
+            viaRepository()
+        }
     }
 
-    fun getFlashCards() {
+    init {
         viewModelScope.launch {
-            db.collection("FlashCardList")
-                .get()
-                .addOnSuccessListener { download ->
-                    Log.d("Great Success", "Success")
-                    val flashCardDownloads: MutableList<FlashCardViewData> = mutableListOf()
-                    download.documents[0].data?.let { successfulDownload ->
-                        successfulDownload["flashCardList"].let { list ->
-                            list as List<*>
-                            list.forEach {
-                                it as Map<*, *>
-                                val flashCard = FlashCardViewData(
-                                    it["question"].toString(),
-                                    it["answer"].toString()
-                                )
-                                flashCardDownloads.add(flashCard)
-                            }
-                        }
-                    }
-                    flashDatabase = flashCardDownloads
-                    _viewData.value = ViewData.Data(flashCardDownloads.random())
-                }
-                .addOnFailureListener {
-                    Log.d("Failure", "Download error")
-                }
+            getFlashCards()
+//            uploadFlashCards()
+        }
+    }
 
+    private suspend fun viaRepository() {
+        val flashHolder: MutableList<FlashCardViewData> = mutableListOf()
+        viewModelScope.launch {
+            try {
+                repository.getFlashCards().let { data ->
+                    data.forEach {
+                        flashHolder.add(
+                            it.toViewData()
+                        )
+                    }
+                }
+                flashDatabase = flashHolder
+                    _viewData.value = ViewData.Data(flashHolder.random())
+            } catch (e: Exception) {
+                Log.d("Error", e.toString())
+                _viewData.value = ViewData.Error(e)
+            }
         }
     }
 
@@ -75,57 +61,17 @@ class FlashCardViewModel @Inject constructor() : ViewModel() {
         viewModelScope.launch {
             val questionBankData: MutableMap<String, Any> = HashMap()
             questionBankData["flashCardList"] = flashCardList
-            db.collection("FlashCardList")
-                .add(questionBankData)
-                .addOnSuccessListener { documentReference ->
-                    Log.d("Success TAG", "DocumentSnapshot added with ID: ${documentReference.id}")
-                }
-                .addOnFailureListener { e ->
-                    Log.w("Failure TAG", "Error adding document", e)
-                }
+            repository.uploadFlashCards(questionBankData)
         }
-
-//        viewModelScope.launch {
-//            val flashCardHashMapList = mutableListOf<HashMap<String, String>>()
-//            flashCardList.forEach {
-//                val flashCardHashMap = hashMapOf(
-//                    "question" to it.question,
-//                    "answer" to it.answer
-//                )
-//                flashCardHashMapList.add(flashCardHashMap)
-//            }
-//            db.collection("FlashCardList")
-//                .add(flashCardHashMapList).addOnSuccessListener { documentReference ->
-//                    Log.d("Success", "Upload Successful ${documentReference.id}")
-//                }
-//                .addOnFailureListener { e ->
-//                    Log.d("Failure", "Upload Failed", e)
-//                }
-//        }
     }
 
     fun onNextQuestionClick() {
         _viewData.value = ViewData.Data(flashDatabase.random())
-//        viewModelScope.launch {
-//            for (i in flashCardList) {
-//                val flashCard = hashMapOf(
-//                    "question" to (i.question),
-//                    "answer" to (i.answer)
-//                )
-//                db.collection("FlashCards")
-//                    .add(flashCard)
-//                    .addOnSuccessListener { documentReference ->
-//                        Log.d(
-//                            "Success",
-//                            "DocumentSnapshot written with ID: ${documentReference.id}"
-//                        )
-//                    }
-//                    .addOnFailureListener { e ->
-//                        Log.w("Failure", "Error adding document", e)
-//                    }
-//            }
-//        }
     }
+}
+
+private fun FlashCardDto.toViewData(): FlashCardViewData {
+    return FlashCardViewData(question, answer)
 }
 
 val flashCardList = listOf(
