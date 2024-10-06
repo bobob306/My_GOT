@@ -7,9 +7,6 @@ import com.bensdevelops.myGOT.network.repository.FlashCardRepository
 import com.bensdevelops.myGOT.network.repository.FlashCardRepositoryImpl
 import com.bensdevelops.myGOT.network.repository.Repository
 import com.bensdevelops.myGOT.network.repository.RepositoryImpl
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,7 +27,6 @@ import retrofit2.http.Path
 import java.io.IOException
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)

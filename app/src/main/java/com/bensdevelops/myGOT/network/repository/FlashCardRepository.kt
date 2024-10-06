@@ -19,7 +19,6 @@ interface FlashCardRepository {
 }
 
 class FlashCardRepositoryImpl @Inject constructor() : FlashCardRepository {
-    val firestore = Firebase.firestore
     val db = FirebaseFirestore.getInstance().collection("FlashCardList")
 
     private val flashDatabase = mutableListOf<FlashCardDto>()
