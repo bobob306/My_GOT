@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -28,6 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -173,15 +175,21 @@ fun FlashCard(
 
 @Composable
 fun QuestionContent(question: String) {
-    Card(
+    Box(
         modifier = Modifier
             .padding(16.dp)
-            .background(MaterialTheme.colorScheme.primary)
+            .background(
+                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(8.dp),
+            )
             .fillMaxWidth()
     ) {
         Text(
             modifier = Modifier
-                .background(MaterialTheme.colorScheme.primary)
+                .background(
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(8.dp),
+                )
                 .padding(16.dp),
             text = question,
             style = MaterialTheme.typography.headlineSmall,
@@ -195,21 +203,28 @@ fun AnswerContent(answer: String, onNextQuestionClick: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 8.dp),
+            .padding(8.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Card(
+        Box(
             modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(8.dp),
+                )
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .weight(0.9f)
         ) {
             Text(
                 modifier = Modifier
-                    .background(MaterialTheme.colorScheme.primary),
+                    .padding(16.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(8.dp),
+                    ),
                 text = answer,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onPrimary,
@@ -219,7 +234,7 @@ fun AnswerContent(answer: String, onNextQuestionClick: () -> Unit) {
             onClick = {
                 onNextQuestionClick()
             }, modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(top = 16.dp)
                 .fillMaxWidth()
                 .wrapContentSize()
         ) {
