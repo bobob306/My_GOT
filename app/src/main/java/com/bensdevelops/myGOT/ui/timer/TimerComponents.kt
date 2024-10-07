@@ -15,11 +15,6 @@ fun timeInput(
     value: String,
     handleItemValueChange: (String) -> Unit,
 ) : String {
-    val onValueChange = { newValue: String ->
-        val filteredValue = if (newValue == "0") 0 else newValue.filter { it.isDigit() }
-            .toIntOrNull() ?: 0
-        filteredValue.toString()
-    }
     OutlinedTextField(
         label = { Text(text = labelText) },
         value = value,
