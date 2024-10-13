@@ -37,7 +37,7 @@ import androidx.navigation.navOptions
 import com.bensdevelops.myGOT.core.base.ViewData
 import com.bensdevelops.myGOT.core.base.ui.GenericLoading
 import com.bensdevelops.myGOT.navigation.Screen
-import com.bensdevelops.myGOT.ui.screens.flashcardscreen.viewdata.FlashCardViewData
+import com.bensdevelops.myGOT.ui.screens.flashcardscreen.viewdata.FlashCardScreenViewData
 
 @Composable
 fun FlashCardScreen(
@@ -63,7 +63,7 @@ fun FlashCardScreen(
 
         is ViewData.Data -> {
             FlashCardScreenContent(
-                viewData = (viewData as ViewData.Data<FlashCardViewData>).content,
+                viewData = (viewData as ViewData.Data<FlashCardScreenViewData>).content,
                 flipped = flipped,
                 onNavigateToHome = {
                     navController.navigate(
@@ -86,7 +86,7 @@ fun FlashCardScreen(
 
 @Composable
 fun FlashCardScreenContent(
-    viewData: FlashCardViewData,
+    viewData: FlashCardScreenViewData,
     flipped: Boolean,
     onNavigateToHome: () -> Unit,
     onNextQuestionClick: () -> Unit,
@@ -107,7 +107,7 @@ fun FlashCardScreenContent(
 
 @Composable
 fun FlashCard(
-    viewData: FlashCardViewData,
+    viewData: FlashCardScreenViewData,
     onNextQuestionClick: () -> Unit,
     onCardClick: () -> Unit,
     onNavigateToHome: () -> Unit,
@@ -148,11 +148,11 @@ fun FlashCard(
                     .fillMaxHeight(0.9f)
             ) {
                 if (rotation < 90f) {
-                    QuestionContent(question = viewData.question)
+                    QuestionContent(question = viewData.flashCardViewData.question)
                 } else {
                     // Apply rotation to the back content
                     Column(modifier = Modifier.graphicsLayer { rotationY = 180f }) {
-                        AnswerContent(answer = viewData.answer, onNextQuestionClick)
+                        AnswerContent(answer = viewData.flashCardViewData.answer, onNextQuestionClick)
                     }
                 }
             }
