@@ -6,7 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bensdevelops.myGOT.core.base.ViewData
-import com.bensdevelops.myGOT.network.repository.FlashCardDto
+import com.bensdevelops.myGOT.mapper.FlashCardViewDataMapper
 import com.bensdevelops.myGOT.network.repository.FlashCardRepository
 import com.bensdevelops.myGOT.ui.screens.flashcardscreen.viewdata.FlashCardViewData
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -16,6 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FlashCardViewModel @Inject constructor(
     private val repository: FlashCardRepository,
+    private val mapper: FlashCardViewDataMapper,
 ) : ViewModel() {
 
     private var _viewData = MutableLiveData<ViewData<FlashCardViewData>>(ViewData.Loading())
@@ -43,7 +44,7 @@ class FlashCardViewModel @Inject constructor(
                 repository.getFlashCards().let { data ->
                     data.forEach {
                         flashHolder.add(
-                            it.toViewData()
+                            mapper.map(it)
                         )
                     }
                 }
@@ -70,66 +71,126 @@ class FlashCardViewModel @Inject constructor(
     }
 }
 
-private fun FlashCardDto.toViewData(): FlashCardViewData {
-    return FlashCardViewData(question, answer)
-}
-
 val flashCardList = listOf(
     FlashCardViewData(
         question = "What is Android Jetpack Compose, and why was it introduced?",
-        answer = "Android Jetpack Compose is a modern UI toolkit introduced by Google for building native Android applications. It was introduced to simplify and enhance the UI development process by providing a declarative and reactive approach to building UIs."
+        answer = "Android Jetpack Compose is a modern UI toolkit introduced by Google for building" +
+                " native Android applications. It was introduced to simplify and enhance the UI" +
+                " development process by providing a declarative and reactive " +
+                "approach to building UIs.",
+        tags = listOf("Compose", "Android", "UI",)
     ),
     FlashCardViewData(
         question = "Explain the difference between View-based UI framework and Jetpack Compose.",
-        answer = "The View-based UI framework uses XML layout files and imperative code to create and manage UI components. Jetpack Compose, on the other hand, uses a declarative approach where UI components are described as functions of the application state. Compose simplifies UI development, reduces boilerplate code, and provides a more intuitive way to create interactive UIs."
+        answer = "The View-based UI framework uses XML layout files and imperative code to create " +
+                "and manage UI components. Jetpack Compose, on the other hand, uses a declarative " +
+                "approach where UI components are described as functions of the application state. " +
+                "Compose simplifies UI development, reduces boilerplate code, and provides a more " +
+                "intuitive way to create interactive UIs.",
+        tags = listOf("Compose", "Android", "Xml", "UI",)
     ),
     FlashCardViewData(
         question = "What are the advantages of using Jetpack Compose over the traditional View system?",
-        answer = "Advantages of Jetpack Compose include:\n\nDeclarative UI: Compose allows developers to describe the UI based on the current state, making the code more concise and readable.\nLive Previews: Compose offers real-time UI previews in Android Studio, enabling instant visual feedback during development.\nSimplified State Management: Compose simplifies state management by automatically recomposing only the affected parts of the UI when the state changes.\nEnhanced Performance: Compose leverages efficient rendering and diffing algorithms, resulting in improved performance compared to the traditional View system."
+        answer = "Advantages of Jetpack Compose include:\n\nDeclarative UI: " +
+                "Compose allows developers to describe the UI based on the current state, " +
+                "making the code more concise and readable.\nLive Previews: Compose offers " +
+                "real-time UI previews in Android Studio, enabling instant visual feedback " +
+                "during development.\nSimplified State Management: Compose simplifies state " +
+                "management by automatically recomposing only the affected parts of the UI " +
+                "when the state changes.\nEnhanced Performance: Compose leverages efficient " +
+                "rendering and diffing algorithms, resulting in improved performance compared " +
+                "to the traditional View system.",
+        tags = listOf("Compose", "Android", "UI",),
     ),
     FlashCardViewData(
         question = "What is a Composable function in Jetpack Compose?",
-        answer = "A Composable function is a regular Kotlin function annotated with the @Composable annotation. It is the fundamental building block in Jetpack Compose and describes a UI component's appearance and behavior. Composable functions are independent of the activity or fragment lifecycle, making them reusable and testable."
+        answer = "A Composable function is a regular Kotlin function annotated with the @Composable " +
+                "annotation. It is the fundamental building block in Jetpack Compose and describes" +
+                " a UI component's appearance and behavior. Composable functions are independent " +
+                "of the activity or fragment lifecycle, making them reusable and testable.",
+        tags = listOf("Compose", "Android", "UI",),
     ),
     FlashCardViewData(
         question = "How does state management work in Jetpack Compose?",
-        answer = "State management in Jetpack Compose revolves around the concept of mutable state. Compose provides the mutableStateOf function to create observable state objects. When the state changes, Jetpack Compose automatically recomposes only the affected parts of the UI, ensuring efficient UI updates."
+        answer = "State management in Jetpack Compose revolves around the concept of mutable state." +
+                " Compose provides the mutableStateOf function to create observable state objects." +
+                " When the state changes, Jetpack Compose automatically recomposes only the affected" +
+                " parts of the UI, ensuring efficient UI updates.",
+        tags = listOf("Compose", "Android", "UI", "State",),
     ),
     FlashCardViewData(
         question = "What is the role of the Modifier in Jetpack Compose?",
-        answer = "The Modifier is used to customize and apply transformations to UI elements in Jetpack Compose. It allows you to specify properties such as size, padding, alignment, background color, and more. Modifiers can be chained together to apply multiple transformations to a single UI element."
+        answer = "The Modifier is used to customize and apply transformations to UI elements " +
+                "in Jetpack Compose. It allows you to specify properties such as size, padding, " +
+                "alignment, background color, and more. Modifiers can be chained together to apply" +
+                " multiple transformations to a single UI element.",
+        tags = listOf("Compose", "Android", "UI",),
     ),
     FlashCardViewData(
         question = "How is navigation handled in Jetpack Compose?",
-        answer = "Navigation in Jetpack Compose is handled using the Navigation Compose library. It introduces the concept of navigation graphs, where each screen or destination is represented by a composable function. The navigation graph defines the connections between destinations, and navigation actions can be triggered using predefined navigation methods."
+        answer = "Navigation in Jetpack Compose is handled using the Navigation Compose library. " +
+                "It introduces the concept of navigation graphs, where each screen or destination " +
+                "is represented by a composable function. The navigation graph defines the " +
+                "connections between destinations, and navigation actions can be triggered " +
+                "using predefined navigation methods.",
+        tags = listOf("Compose", "Android", "UI", "Navigation",),
     ),
     FlashCardViewData(
         question = "Explain the concept of recomposition in Jetpack Compose.",
-        answer = "Recomposition is the process of automatically updating only the parts of the UI that have changed when the state variables of a Composable function are modified. Jetpack Compose tracks the dependencies between Composable functions and their state variables. When a state variable changes, only the affected Composable functions are recomposed, ensuring efficient UI updates."
+        answer = "Recomposition is the process of automatically updating only the parts of the UI " +
+                "that have changed when the state variables of a Composable function are modified. " +
+                "Jetpack Compose tracks the dependencies between Composable functions and their " +
+                "state variables. When a state variable changes, only the affected Composable " +
+                "functions are recomposed, ensuring efficient UI updates.",
+        tags = listOf("Compose", "Android", "UI", "Recomposition", "State"),
     ),
     FlashCardViewData(
         question = "How can you handle user input and events in Jetpack Compose?",
-        answer = "User input and events can be handled using event callbacks and state variables in Jetpack Compose. Composable functions can define event callbacks that are triggered when a user interacts with the UI. These callbacks can modify the state variables, leading to UI recomposition and updates."
+        answer = "User input and events can be handled using event callbacks and state variables " +
+                "in Jetpack Compose. Composable functions can define event callbacks that are " +
+                "triggered when a user interacts with the UI. These callbacks can modify the " +
+                "state variables, leading to UI recomposition and updates.",
+        tags = listOf("Compose", "Android", "UI", "State", "Recomposition"),
     ),
     FlashCardViewData(
         question = "What is the purpose of ViewModel in Jetpack Compose?",
-        answer = "ViewModel in Jetpack Compose is used for managing and preserving UI-related data across configuration changes. It provides a way to separate the UI logic from the UI components and allows sharing data between multiple Composable functions. ViewModels can be accessed using the viewModel or viewModel<>() functions."
+        answer = "ViewModel in Jetpack Compose is used for managing and preserving UI-related " +
+                "data across configuration changes. It provides a way to separate the UI logic " +
+                "from the UI components and allows sharing data between multiple Composable " +
+                "functions. ViewModels can be accessed using the viewModel or viewModel<>() functions.",
+        tags = listOf("Compose", "Android", "UI", "ViewModel", "Architecture"),
     ),
     FlashCardViewData(
         question = "How does Jetpack Compose integrate with existing Android frameworks and libraries?",
-        answer = "Jetpack Compose can be integrated with existing Android frameworks and libraries by using interoperability features. Compose provides compatibility libraries to bridge the gap between Compose and existing View-based UI components. Additionally, Compose supports the embedding of traditional View-based components within Composable functions using the AndroidView or ComposeView APIs."
+        answer = "Jetpack Compose can be integrated with existing Android frameworks and libraries " +
+                "by using interoperability features. Compose provides compatibility libraries to " +
+                "bridge the gap between Compose and existing View-based UI components. " +
+                "Additionally, Compose supports the embedding of traditional View-based " +
+                "components within Composable functions using the AndroidView or ComposeView APIs.",
+        tags = listOf("Compose", "Android", "UI", "Libraries",),
     ),
     FlashCardViewData(
         question = "What are the key components of the Jetpack Compose architecture?",
-        answer = "The key components of the Jetpack Compose architecture include Composable functions, state management, the Modifier system, navigation with the Navigation Compose library, ViewModel, and integration with existing Android frameworks."
+        answer = "The key components of the Jetpack Compose architecture include Composable " +
+                "functions, state management, the Modifier system, navigation with the Navigation " +
+                "Compose library, ViewModel, and integration with existing Android frameworks.",
+        tags = listOf("Compose", "Android", "UI", "Navigation", "Architecture",),
     ),
     FlashCardViewData(
         question = "How do you perform animations in Jetpack Compose?",
-        answer = "Animations in Jetpack Compose can be performed using the animate* family of functions. These functions allow you to animate changes to UI properties, such as size, position, opacity, and color. Jetpack Compose handles the animation updates and UI recomposition automatically."
+        answer = "Animations in Jetpack Compose can be performed using the animate* family of " +
+                "functions. These functions allow you to animate changes to UI properties, such as " +
+                "size, position, opacity, and color. Jetpack Compose handles the animation updates " +
+                "and UI recomposition automatically.",
+        tags = listOf("Compose", "Android", "UI", "Animation",),
     ),
     FlashCardViewData(
         question = "What is the purpose of ConstraintLayout in Jetpack Compose?",
-        answer = "ConstraintLayout in Jetpack Compose is used to create complex and responsive layouts. It allows you to define constraints between UI elements, enabling flexible positioning and resizing based on the available space. ConstraintLayout helps in building dynamic and adaptive UIs."
+        answer = "ConstraintLayout in Jetpack Compose is used to create complex and responsive " +
+                "layouts. It allows you to define constraints between UI elements, enabling " +
+                "flexible positioning and resizing based on the available space. ConstraintLayout " +
+                "helps in building dynamic and adaptive UIs.",
+                tags = listOf("Compose", "Android", "UI",),
     ),
     FlashCardViewData(
         question = "How do you handle theming and styling in Jetpack Compose?",

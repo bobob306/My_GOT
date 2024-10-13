@@ -3,10 +3,13 @@ package com.bensdevelops.myGOT.network.service
 import com.bensdevelops.myGOT.network.model.BookModel
 import com.bensdevelops.myGOT.network.model.CharacterModel
 import com.bensdevelops.myGOT.network.model.HouseModel
+import com.bensdevelops.myGOT.network.repository.FlashCardDto
 import com.bensdevelops.myGOT.network.repository.FlashCardRepository
 import com.bensdevelops.myGOT.network.repository.FlashCardRepositoryImpl
 import com.bensdevelops.myGOT.network.repository.Repository
 import com.bensdevelops.myGOT.network.repository.RepositoryImpl
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FirebaseFirestore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,10 +30,23 @@ import retrofit2.http.Path
 import java.io.IOException
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object ApiModule {
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFirestoreCollection() : CollectionReference {
+        val cr = FirebaseFirestore.getInstance().collection("FlashCardList")
+        return cr
+    }
+
+    @Provides
+    fun provideFlashCardRepository(cr: CollectionReference): FlashCardRepository {
+        return FlashCardRepositoryImpl(cr)
+    }
 
     // All requests will append this base url
     private const val BASE_URL = "https://anapioficeandfire.com/api/"
@@ -59,11 +75,6 @@ object ApiModule {
     @Provides
     fun provideRepository(retrofitApi: RetrofitApi): Repository {
         return RepositoryImpl(retrofitApi)
-    }
-
-    @Provides
-    fun provideFlashCardRepository(): FlashCardRepository {
-        return FlashCardRepositoryImpl()
     }
 
 }
