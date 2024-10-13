@@ -25,6 +25,7 @@ class FlashCardViewModel @Inject constructor(
 
     var flashDatabase = listOf<FlashCardViewData>()
     var tagList = mutableListOf<String>()
+    var selectedTags = mutableListOf<String>()
 
     private fun getFlashCards() {
         viewModelScope.launch {
@@ -85,6 +86,22 @@ class FlashCardViewModel @Inject constructor(
                 flashCardViewData = flashDatabase.random(),
                 tags = tagList,
             )
+        )
+    }
+
+    fun onTagClick(tag: String) {
+        if (selectedTags.contains(tag)) {
+            selectedTags.remove(tag)
+        } else {
+            selectedTags.add(tag)
+        }
+        val existingViewData = viewData.value as ViewData.Data
+        _viewData.value = ViewData.Data(
+                FlashCardScreenViewData(
+                    flashCardViewData = existingViewData.content.flashCardViewData,
+                    tags = existingViewData.content.tags,
+                    selectedTags = selectedTags,
+                )
         )
     }
 }
