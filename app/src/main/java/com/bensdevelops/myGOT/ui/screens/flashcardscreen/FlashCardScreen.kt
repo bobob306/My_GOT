@@ -89,7 +89,8 @@ fun FlashCardScreen(
                     flipped = !flipped
                 },
                 onCardClick = { flipped = !flipped },
-                onItemClick = { viewModel.onTagClick(it) }
+                onItemClick = { viewModel.onTagClick(it) },
+                updateQuestions = { viewModel.filterFlashCardsByTags() },
             )
         }
     }
@@ -104,6 +105,7 @@ fun FlashCardScreenContent(
     onNextQuestionClick: () -> Unit,
     onCardClick: () -> Unit,
     onItemClick: (String) -> Unit,
+    updateQuestions: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState()
     val scope = rememberCoroutineScope()
@@ -131,6 +133,7 @@ fun FlashCardScreenContent(
         ModalBottomSheet(
             onDismissRequest = {
                 showBottomSheet = false
+                updateQuestions.invoke()
             },
             sheetState = sheetState
         ) {
