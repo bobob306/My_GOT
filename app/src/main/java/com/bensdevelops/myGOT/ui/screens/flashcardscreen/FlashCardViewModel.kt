@@ -75,9 +75,9 @@ class FlashCardViewModel @Inject constructor(
 
     fun filterFlashCardsByTags() {
         if (selectedTags == emptyList<String>()) return else {
-            val filteredQuestions = flashDatabase.filter {
-                it.tags?.any{
-                    selectedTags.contains(it)
+            val filteredQuestions = flashDatabase.filter { flashCards ->
+                flashCards.tags?.any{ eachTag ->
+                    selectedTags.contains(eachTag)
                 } == true
             }
             if (filteredQuestions.isEmpty()) return else {
