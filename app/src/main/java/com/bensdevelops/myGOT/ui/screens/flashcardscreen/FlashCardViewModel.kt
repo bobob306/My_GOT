@@ -24,7 +24,7 @@ class FlashCardViewModel @Inject constructor(
     val viewData: LiveData<ViewData<FlashCardScreenViewData>> get() = _viewData
 
     var flashDatabase = listOf<FlashCardViewData>()
-    var inUseFlashCards = mutableListOf<FlashCardViewData>()
+    var inUseFlashCards = listOf<FlashCardViewData>()
     var tagList = mutableListOf<String>()
     var selectedTags = mutableListOf<String>()
 
@@ -53,6 +53,7 @@ class FlashCardViewModel @Inject constructor(
                     }
                 }
                 flashDatabase = flashHolder
+                inUseFlashCards = flashDatabase
                 flashDatabase.map { flashCards ->
                     flashCards.tags?.forEach { tags ->
                         tagList.add(tags)
@@ -75,10 +76,12 @@ class FlashCardViewModel @Inject constructor(
     fun filterFlashCardsByTags() {
         if (selectedTags == emptyList<String>()) return else {
             val filteredQuestions = flashDatabase.filter {
-                it.tags?.containsAll(selectedTags) == true
+                it.tags?.any{
+                    selectedTags.contains(it)
+                } == true
             }
             if (filteredQuestions.isEmpty()) return else {
-                inUseFlashCards = filteredQuestions.toMutableList()
+                inUseFlashCards = filteredQuestions
             }
             _viewData.value = ViewData.Data(
                 FlashCardScreenViewData(
