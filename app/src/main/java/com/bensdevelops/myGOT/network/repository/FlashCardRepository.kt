@@ -46,9 +46,7 @@ class FlashCardRepositoryImpl @Inject constructor(
     override suspend fun uploadFlashCards(data: MutableMap<String, Any>) {
         try {
             cr.add(data).await()
-            Log.d("Success TAG", "DocumentSnapshot added")
-        } catch (e: Exception) {
-            Log.d("Error", e.toString())
+        } catch (_: Exception) {
         }
     }
 }
