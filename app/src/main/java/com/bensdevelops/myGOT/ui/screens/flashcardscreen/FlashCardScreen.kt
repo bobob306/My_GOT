@@ -75,7 +75,6 @@ fun FlashCardScreen(
         is ViewData.Data -> {
             FlashCardScreenContent(
                 viewData = (viewData as ViewData.Data<FlashCardScreenViewData>).content,
-                flipped = flipped,
                 onNavigateToHome = {
                     navController.navigate(
                         route = Screen.HomeScreen.route,
@@ -86,10 +85,9 @@ fun FlashCardScreen(
                     )
                 },
                 onNextQuestionClick = {
-                    flipped = !flipped
                     viewModel.onNextQuestionClick()
                 },
-                onCardClick = { flipped = !flipped },
+                onCardClick = { viewModel.onFlip() },
                 onItemClick = { viewModel.onTagClick(it) },
                 updateQuestions = { viewModel.filterFlashCardsByTags() },
             )
@@ -109,9 +107,9 @@ private fun FlashCardScreenPreview() {
                 tags = listOf("Tag1", "Tag2")
             ),
             tags = listOf("Tag1", "Tag2"),
-            selectedTags = listOf("Tag1")
+            selectedTags = listOf("Tag1"),
+            flipped = false,
         ),
-        flipped = false,
         onNavigateToHome = {},
         onNextQuestionClick = {},
         onCardClick = {},
@@ -123,7 +121,6 @@ private fun FlashCardScreenPreview() {
 @Composable
 fun FlashCardScreenContent(
     viewData: FlashCardScreenViewData,
-    flipped: Boolean,
     onNavigateToHome: () -> Unit,
     onNextQuestionClick: () -> Unit,
     onCardClick: () -> Unit,
@@ -146,7 +143,6 @@ fun FlashCardScreenContent(
                 onCardClick = onCardClick,
                 onNavigateToHome = onNavigateToHome,
                 onFilterClicked = { showBottomSheet = !showBottomSheet },
-                flipped = flipped,
             )
         }
     }
@@ -219,11 +215,10 @@ fun FlashCard(
     onCardClick: () -> Unit,
     onNavigateToHome: () -> Unit,
     onFilterClicked: () -> Unit,
-    flipped: Boolean
 ) {
 
     val transition = updateTransition(
-        targetState = flipped,
+        targetState = viewData.flipped ?: false,
         label = "flash card flip"
     )
     val rotation by transition.animateFloat(
@@ -261,7 +256,7 @@ fun FlashCard(
                     .fillMaxWidth()
             ) {
                 if (rotation < 90f) {
-                    QuestionContent(question = viewData.flashCardViewData.question)
+                    QuestionContent(flashCardViewData = viewData.flashCardViewData)
                 } else {
                     // Apply rotation to the back content
                     AnswerContent(
@@ -303,8 +298,11 @@ fun FlashCard(
 }
 
 @Composable
-fun QuestionContent(question: String) {
-    Box(
+fun QuestionContent(flashCardViewData: FlashCardViewData) {
+    Column(
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.Start
+        ,
         modifier = Modifier
             .padding(16.dp)
             .background(
@@ -320,8 +318,19 @@ fun QuestionContent(question: String) {
                     shape = RoundedCornerShape(8.dp),
                 )
                 .padding(16.dp),
-            text = question,
+            text = flashCardViewData.question,
             style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onPrimary,
+        )
+        Text(
+            modifier = Modifier
+                .background(
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(8.dp),
+                )
+                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+            text = ("Tags = " + flashCardViewData.tags.toString()) ?: "",
+            style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onPrimary,
         )
     }

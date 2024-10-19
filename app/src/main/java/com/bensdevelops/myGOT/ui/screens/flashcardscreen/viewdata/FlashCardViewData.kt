@@ -4,6 +4,7 @@ data class FlashCardScreenViewData(
     val flashCardViewData: FlashCardViewData,
     val tags: List<String>? = null,
     val selectedTags: List<String>? = null,
+    val flipped: Boolean? = false,
 )
 
 data class FlashCardViewData(

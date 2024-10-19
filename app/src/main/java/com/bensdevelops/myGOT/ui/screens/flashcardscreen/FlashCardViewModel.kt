@@ -73,25 +73,49 @@ class FlashCardViewModel @Inject constructor(
         }
     }
 
+    fun onFlip() {
+        val existingViewData = viewData.value as ViewData.Data
+        _viewData.value = ViewData.Data(
+            FlashCardScreenViewData(
+                flashCardViewData = existingViewData.content.flashCardViewData,
+                tags = existingViewData.content.tags,
+                selectedTags = existingViewData.content.selectedTags,
+                flipped = !existingViewData.content.flipped!!,
+            )
+        )
+    }
+
     fun filterFlashCardsByTags() {
         val existingViewData = viewData.value as ViewData.Data
         val newTagList = existingViewData.content.selectedTags?.toMutableList() ?: mutableListOf()
         if (newTagList == emptyList<String>()) return else {
             val filteredQuestions = flashDatabase.filter { flashCards ->
-                flashCards.tags?.any{ eachTag ->
+                flashCards.tags?.any { eachTag ->
                     newTagList.contains(eachTag)
                 } == true
             }
             if (filteredQuestions.isEmpty()) return else {
                 inUseFlashCards = filteredQuestions
             }
-            _viewData.value = ViewData.Data(
-                FlashCardScreenViewData(
-                    flashCardViewData = inUseFlashCards.random(),
-                    tags = tagList,
-                    selectedTags = newTagList,
+            if (inUseFlashCards.contains(existingViewData.content.flashCardViewData)) {
+                _viewData.value = ViewData.Data(
+                    FlashCardScreenViewData(
+                        flashCardViewData = existingViewData.content.flashCardViewData,
+                        tags = tagList,
+                        selectedTags = newTagList,
+                        flipped = existingViewData.content.flipped,
+                    )
                 )
-            )
+            } else {
+                _viewData.value = ViewData.Data(
+                    FlashCardScreenViewData(
+                        flashCardViewData = inUseFlashCards.random(),
+                        tags = tagList,
+                        selectedTags = newTagList,
+                        flipped = false,
+                    )
+                )
+            }
         }
     }
 
@@ -112,6 +136,7 @@ class FlashCardViewModel @Inject constructor(
                 flashCardViewData = inUseFlashCards.random(),
                 tags = tagList,
                 selectedTags = newTagList,
+                flipped = false,
             )
         )
     }
@@ -126,11 +151,12 @@ class FlashCardViewModel @Inject constructor(
         }
 
         _viewData.value = ViewData.Data(
-                FlashCardScreenViewData(
-                    flashCardViewData = existingViewData.content.flashCardViewData,
-                    tags = existingViewData.content.tags,
-                    selectedTags = newTagList,
-                )
+            FlashCardScreenViewData(
+                flashCardViewData = existingViewData.content.flashCardViewData,
+                tags = existingViewData.content.tags,
+                selectedTags = newTagList,
+                flipped = existingViewData.content.flipped,
+            )
         )
     }
 }
