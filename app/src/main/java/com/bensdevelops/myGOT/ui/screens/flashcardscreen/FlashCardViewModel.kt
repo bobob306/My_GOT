@@ -26,7 +26,7 @@ class FlashCardViewModel @Inject constructor(
     var flashDatabase = listOf<FlashCardViewData>()
     var inUseFlashCards = listOf<FlashCardViewData>()
     var tagList = mutableListOf<String>()
-    var selectedTags = mutableListOf<String>()
+    var selectedTags = listOf<String>()
 
     private fun getFlashCards() {
         viewModelScope.launch {
@@ -74,10 +74,12 @@ class FlashCardViewModel @Inject constructor(
     }
 
     fun filterFlashCardsByTags() {
-        if (selectedTags == emptyList<String>()) return else {
+        val existingViewData = viewData.value as ViewData.Data
+        val newTagList = existingViewData.content.selectedTags?.toMutableList() ?: mutableListOf()
+        if (newTagList == emptyList<String>()) return else {
             val filteredQuestions = flashDatabase.filter { flashCards ->
                 flashCards.tags?.any{ eachTag ->
-                    selectedTags.contains(eachTag)
+                    newTagList.contains(eachTag)
                 } == true
             }
             if (filteredQuestions.isEmpty()) return else {
@@ -87,7 +89,7 @@ class FlashCardViewModel @Inject constructor(
                 FlashCardScreenViewData(
                     flashCardViewData = inUseFlashCards.random(),
                     tags = tagList,
-                    selectedTags = selectedTags,
+                    selectedTags = newTagList,
                 )
             )
         }
@@ -103,26 +105,31 @@ class FlashCardViewModel @Inject constructor(
     }
 
     fun onNextQuestionClick() {
+        val existingViewData = viewData.value as ViewData.Data
+        val newTagList = existingViewData.content.selectedTags?.toMutableList() ?: mutableListOf()
         _viewData.value = ViewData.Data(
             FlashCardScreenViewData(
                 flashCardViewData = inUseFlashCards.random(),
                 tags = tagList,
+                selectedTags = newTagList,
             )
         )
     }
 
     fun onTagClick(tag: String) {
-        if (selectedTags.contains(tag)) {
-            selectedTags.remove(tag)
-        } else {
-            selectedTags.add(tag)
-        }
         val existingViewData = viewData.value as ViewData.Data
+        val newTagList = existingViewData.content.selectedTags?.toMutableList() ?: mutableListOf()
+        if (newTagList.contains(tag)) {
+            newTagList.remove(tag)
+        } else {
+            newTagList.add(tag)
+        }
+
         _viewData.value = ViewData.Data(
                 FlashCardScreenViewData(
                     flashCardViewData = existingViewData.content.flashCardViewData,
                     tags = existingViewData.content.tags,
-                    selectedTags = selectedTags,
+                    selectedTags = newTagList,
                 )
         )
     }

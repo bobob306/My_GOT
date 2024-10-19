@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -24,7 +24,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -39,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
@@ -47,6 +47,7 @@ import com.bensdevelops.myGOT.core.base.ViewData
 import com.bensdevelops.myGOT.core.base.ui.GenericLoading
 import com.bensdevelops.myGOT.navigation.Screen
 import com.bensdevelops.myGOT.ui.screens.flashcardscreen.viewdata.FlashCardScreenViewData
+import com.bensdevelops.myGOT.ui.screens.flashcardscreen.viewdata.FlashCardViewData
 import kotlinx.coroutines.launch
 
 @Composable
@@ -85,8 +86,8 @@ fun FlashCardScreen(
                     )
                 },
                 onNextQuestionClick = {
-                    viewModel.onNextQuestionClick()
                     flipped = !flipped
+                    viewModel.onNextQuestionClick()
                 },
                 onCardClick = { flipped = !flipped },
                 onItemClick = { viewModel.onTagClick(it) },
@@ -94,6 +95,28 @@ fun FlashCardScreen(
             )
         }
     }
+}
+
+@Preview
+@Composable
+private fun FlashCardScreenPreview() {
+
+    FlashCardScreenContent(
+        viewData = FlashCardScreenViewData(
+            flashCardViewData = FlashCardViewData(
+                question = "Question",
+                answer = "Answer",
+                tags = listOf("Tag1", "Tag2")
+            ),
+            tags = listOf("Tag1", "Tag2"),
+            selectedTags = listOf("Tag1")
+        ),
+        flipped = false,
+        onNavigateToHome = {},
+        onNextQuestionClick = {},
+        onCardClick = {},
+        onItemClick = {}
+    ) {}
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
@@ -123,12 +146,10 @@ fun FlashCardScreenContent(
                 onCardClick = onCardClick,
                 onNavigateToHome = onNavigateToHome,
                 onFilterClicked = { showBottomSheet = !showBottomSheet },
-                sheetState = sheetState,
                 flipped = flipped,
             )
         }
     }
-    var chosenOptions = mutableListOf<String>()
     if (showBottomSheet) {
         ModalBottomSheet(
             onDismissRequest = {
@@ -151,10 +172,10 @@ fun FlashCardScreenContent(
                 ) {
                     FlowRow {
                         viewData.tags?.forEach {
-                            var clicked by remember { mutableStateOf(false) }
                             Button(
                                 colors = ButtonColors(
-                                    containerColor = if (clicked) MaterialTheme.colorScheme.primary
+                                    containerColor = if (viewData.selectedTags?.contains(it) == true)
+                                        MaterialTheme.colorScheme.primary
                                     else
                                         MaterialTheme.colorScheme.inversePrimary,
                                     contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -162,7 +183,6 @@ fun FlashCardScreenContent(
                                     disabledContainerColor = Color.Unspecified,
                                 ),
                                 onClick = {
-                                    clicked = !clicked
                                     onItemClick(it)
                                 }
                             ) {
@@ -199,7 +219,6 @@ fun FlashCard(
     onCardClick: () -> Unit,
     onNavigateToHome: () -> Unit,
     onFilterClicked: () -> Unit,
-    sheetState: SheetState,
     flipped: Boolean
 ) {
 
@@ -221,12 +240,14 @@ fun FlashCard(
     }
     Column(
         modifier = Modifier
+            .fillMaxSize()
             .background(MaterialTheme.colorScheme.primaryContainer),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Card(
             onClick = { onCardClick() },
             modifier = Modifier
+                .weight(1f, false)
                 .background(color = MaterialTheme.colorScheme.primaryContainer)
                 .fillMaxWidth()
                 .padding(16.dp)
@@ -243,46 +264,40 @@ fun FlashCard(
                     QuestionContent(question = viewData.flashCardViewData.question)
                 } else {
                     // Apply rotation to the back content
-                    Column(modifier = Modifier.graphicsLayer { rotationY = 180f }) {
-                        AnswerContent(
-                            answer = viewData.flashCardViewData.answer,
-                            onNextQuestionClick
-                        )
-                    }
+                    AnswerContent(
+                        answer = viewData.flashCardViewData.answer,
+                        onNextQuestionClick,
+                    )
                 }
             }
         }
-        Spacer(Modifier.weight(1f))
-        Button(
-            colors = ButtonColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondary,
-                disabledContentColor = Color.Unspecified,
-                disabledContainerColor = Color.Unspecified,
-            ),
-            onClick = onFilterClicked,
-            modifier = Modifier
-                .wrapContentHeight()
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Filter questions",
-                color = MaterialTheme.colorScheme.onSecondary,
-            )
-        }
-        Button(
-            onNavigateToHome,
-            modifier = Modifier
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .wrapContentHeight()
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Navigate Home",
-                color = MaterialTheme.colorScheme.onPrimary,
-            )
+        Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
+            Button(
+                colors = ButtonColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondary,
+                    disabledContentColor = Color.Unspecified,
+                    disabledContainerColor = Color.Unspecified,
+                ),
+                onClick = onFilterClicked,
+                modifier = Modifier
+            ) {
+                Text(
+                    text = "Filter questions",
+                    color = MaterialTheme.colorScheme.onSecondary,
+                )
+            }
+            Button(
+                onNavigateToHome,
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+            ) {
+                Text(
+                    text = "Navigate Home",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                )
+            }
+
         }
     }
 }
@@ -316,6 +331,7 @@ fun QuestionContent(question: String) {
 fun AnswerContent(answer: String, onNextQuestionClick: () -> Unit) {
     Column(
         modifier = Modifier
+            .graphicsLayer { rotationY = 180f }
             .wrapContentHeight()
             .padding(8.dp),
         verticalArrangement = Arrangement.Center,
@@ -329,6 +345,7 @@ fun AnswerContent(answer: String, onNextQuestionClick: () -> Unit) {
                 )
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
+                .weight(1f, false)
                 .wrapContentHeight()
         ) {
             Text(
