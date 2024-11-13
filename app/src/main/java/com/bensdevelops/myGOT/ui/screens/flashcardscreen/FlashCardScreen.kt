@@ -56,7 +56,6 @@ fun FlashCardScreen(
     viewModel: FlashCardViewModel = hiltViewModel()
 ) {
     val viewData by viewModel.viewData.observeAsState()
-    var flipped by remember { mutableStateOf(false) }
     when (viewData) {
         is ViewData.Error, null -> {
             navController.navigate(
@@ -178,6 +177,7 @@ fun FlashCardScreenContent(
                                     disabledContentColor = Color.Unspecified,
                                     disabledContainerColor = Color.Unspecified,
                                 ),
+                                modifier = Modifier.padding(4.dp),
                                 onClick = {
                                     onItemClick(it)
                                 }
@@ -207,7 +207,6 @@ fun FlashCardScreenContent(
 
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FlashCard(
     viewData: FlashCardScreenViewData,
@@ -301,8 +300,7 @@ fun FlashCard(
 fun QuestionContent(flashCardViewData: FlashCardViewData) {
     Column(
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.Start
-        ,
+        horizontalAlignment = Alignment.Start,
         modifier = Modifier
             .padding(16.dp)
             .background(
