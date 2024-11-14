@@ -1,6 +1,5 @@
 package com.bensdevelops.myGOT.network.repository
 
-import android.util.Log
 import com.google.firebase.firestore.CollectionReference
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.tasks.await
