@@ -23,10 +23,9 @@ class FlashCardViewModel @Inject constructor(
     private var _viewData = MutableLiveData<ViewData<FlashCardScreenViewData>>(ViewData.Loading())
     val viewData: LiveData<ViewData<FlashCardScreenViewData>> get() = _viewData
 
-    var flashDatabase = listOf<FlashCardViewData>()
-    var inUseFlashCards = listOf<FlashCardViewData>()
-    var tagList = mutableListOf<String>()
-    var selectedTags = listOf<String>()
+    private var flashDatabase = listOf<FlashCardViewData>()
+    private var inUseFlashCards = listOf<FlashCardViewData>()
+    private var tagList = mutableListOf<String>()
 
     private fun getFlashCards() {
         viewModelScope.launch {
@@ -80,7 +79,7 @@ class FlashCardViewModel @Inject constructor(
                 flashCardViewData = existingViewData.content.flashCardViewData,
                 tags = existingViewData.content.tags,
                 selectedTags = existingViewData.content.selectedTags,
-                flipped = !existingViewData.content.flipped!!,
+                flipped = !existingViewData.content.flipped,
             )
         )
     }
@@ -103,7 +102,7 @@ class FlashCardViewModel @Inject constructor(
                         flashCardViewData = existingViewData.content.flashCardViewData,
                         tags = tagList,
                         selectedTags = newTagList,
-                        flipped = existingViewData.content.flipped,
+                        flipped = false,
                     )
                 )
             } else {
@@ -120,7 +119,6 @@ class FlashCardViewModel @Inject constructor(
     }
 
     fun uploadFlashCards() {
-
         viewModelScope.launch {
             val questionBankData: MutableMap<String, Any> = HashMap()
             questionBankData["flashCardList"] = flashCardList
@@ -149,15 +147,56 @@ class FlashCardViewModel @Inject constructor(
         } else {
             newTagList.add(tag)
         }
-
-        _viewData.value = ViewData.Data(
-            FlashCardScreenViewData(
-                flashCardViewData = existingViewData.content.flashCardViewData,
-                tags = existingViewData.content.tags,
-                selectedTags = newTagList,
-                flipped = existingViewData.content.flipped,
-            )
+        val newViewData = existingViewData.content.copy(
+            flashCardViewData = existingViewData.content.flashCardViewData,
+            tags = existingViewData.content.tags,
+            selectedTags = newTagList,
+            flipped = false,
+            sliderPosition = 0f,
+            initialPosition = 0f,
+            flipDirection = 0f,
         )
+
+        _viewData.value = ViewData.Data(newViewData)
+    }
+
+    fun onDragStarted(drag: Float) {
+        val existingViewData = viewData.value
+        if (existingViewData is ViewData.Data) {
+            val newViewData = existingViewData.content.copy(initialPosition = drag)
+            _viewData.value = ViewData.Data(newViewData)
+        }
+    }
+
+    fun onDragStopped(drag: Float) {
+        val existingViewData = viewData.value
+        if (existingViewData is ViewData.Data) {
+            val initialPosition = existingViewData.content.initialPosition
+            val sliderPosition = (drag - initialPosition)
+            when {
+                sliderPosition > 0.5f -> {
+                    val newViewData = existingViewData.content.copy(
+                        flipped = !existingViewData.content.flipped,
+                        flipDirection = existingViewData.content.flipDirection
+                                + 180f * if (!existingViewData.content.flipped)
+                            -1f else 1f,
+                        initialPosition = 0f,
+                    )
+                    _viewData.value = ViewData.Data(newViewData)
+                }
+
+                sliderPosition < -0.5f -> {
+                    val newViewData = existingViewData.content.copy(
+                        flipped = !existingViewData.content.flipped,
+                        flipDirection = existingViewData.content.flipDirection
+                                - 180f * if (!existingViewData.content.flipped)
+                            -1f else 1f,
+                        initialPosition = 0f,
+                    )
+                    _viewData.value = ViewData.Data(newViewData)
+                }
+            }
+        }
     }
 }
 

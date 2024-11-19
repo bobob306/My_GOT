@@ -1,5 +1,6 @@
 package com.bensdevelops.myGOT.ui.screens.flashcardscreen.components
 
+import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -22,39 +23,37 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
-import com.bensdevelops.myGOT.ui.screens.flashcardscreen.AnswerContent
-import com.bensdevelops.myGOT.ui.screens.flashcardscreen.QuestionContent
 import com.bensdevelops.myGOT.ui.screens.flashcardscreen.viewdata.FlashCardScreenViewData
-import com.bensdevelops.myGOT.ui.screens.flashcardscreen.viewdata.FlashCardViewData
 
 @Composable
 fun FlashCard(
     viewData: FlashCardScreenViewData,
     onNextQuestionClick: () -> Unit,
-    onCardClick: () -> Unit,
     onNavigateToHome: () -> Unit,
     onFilterClicked: () -> Unit,
+    onDragStopped: (Float) -> Unit,
+    onDragStarted: (Float) -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.primaryContainer),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.primaryContainer),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        FlashCardV2(
-            modifier = Modifier.fillMaxSize(1f).weight(1f, false),
-            viewData.flipped ?: false,
-            viewData.flashCardViewData,
-            onCardClick,
-            onNextQuestionClick,
+        FlippableCard(
+            modifier = Modifier
+                .fillMaxSize(1f)
+                .weight(1f, false),
+            viewData = viewData,
+            onNextQuestionClick = onNextQuestionClick,
+            onDragStopped = onDragStopped,
+            onDragStarted = onDragStarted,
         )
         Spacer(modifier = Modifier.height(20.dp))
         Row(horizontalArrangement = Arrangement.SpaceEvenly, modifier = Modifier.fillMaxWidth()) {
@@ -88,20 +87,17 @@ fun FlashCard(
     }
 }
 
+@OptIn(InternalAnimationApi::class)
 @Composable
-fun FlashCardV2(
+fun FlippableCard(
     modifier: Modifier,
-    flippedViewData: Boolean = false,
-    flashCardViewData: FlashCardViewData,
-    onCardClick: () -> Unit,
+    viewData: FlashCardScreenViewData,
     onNextQuestionClick: () -> Unit,
+    onDragStopped: (Float) -> Unit,
+    onDragStarted: (Float) -> Unit,
 ) {
-    var sliderPosition by remember { mutableFloatStateOf(0f) }
-    val initialPosition by remember { mutableFloatStateOf(0f) }
-    var flipped by remember { mutableStateOf(flippedViewData) }
-    var flipDirection by remember { mutableFloatStateOf(0f) }
     val transition = updateTransition(
-        targetState = flipped,
+        targetState = viewData.flipped,
         label = "flash card flip"
     )
     val rotation by transition.animateFloat(
@@ -114,12 +110,23 @@ fun FlashCardV2(
             }
         }
     ) {
-        onCardClick()
-        if (it && flipped) flipDirection else flipDirection
+        if (it && viewData.flipped) {
+            viewData.flipDirection
+        }
+        else {
+            viewData.flipDirection
+        }
     }
     Column(
         modifier = modifier
-            .graphicsLayer { if (flipped && !transition.isRunning) rotationY = 180f }
+            .graphicsLayer {
+                rotationY = if (
+                    viewData.flipped &&
+                    (transition.playTimeNanos > 500
+                            || !transition.isRunning)
+                )
+                     180f else 0f
+            }
             .background(MaterialTheme.colorScheme.primaryContainer),
     ) {
         Card(
@@ -132,30 +139,25 @@ fun FlashCardV2(
                     rotationY = rotation
                 }
                 .draggable(
-                    state = rememberDraggableState { },
-                    orientation = Orientation.Horizontal,
-                    onDragStopped = {
-                        sliderPosition = it / 10 - initialPosition
-                        when {
-                            sliderPosition > 0.5f -> {
-                                flipDirection += 180f
-                                flipped = !flipped
-                                sliderPosition = 0f
-                            }
+                    state = rememberDraggableState {
 
-                            sliderPosition < -0.5f -> {
-                                flipDirection -= 180f
-                                flipped = !flipped
-                                sliderPosition = 0f
-                            }
-                        }
+                    },
+                    orientation = Orientation.Horizontal,
+                    onDragStarted = {
+                        onDragStarted(it.x)
+                    },
+                    onDragStopped = {
+                        onDragStopped(it)
                     }
                 )
         ) {
-            if (!flipped) {
-                QuestionContent(flashCardViewData)
+            if (!viewData.flipped) {
+                QuestionContent(viewData.flashCardViewData)
             } else {
-                AnswerContent(flashCardViewData.answer, onNextQuestionClick, transition)
+                AnswerContent(
+                    viewData.flashCardViewData.answer,
+                    onNextQuestionClick
+                )
             }
         }
     }
